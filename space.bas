@@ -1422,6 +1422,7 @@ function make_eventplanet(slot as short, cl as byte=0) as short
         next
         return 0
     endif
+    if rv_nomaps(2) then return 0 'RVIP: up to two new maps below
     debug=4
     if orbitfrommap(slot)<>1 then
         maxt=10

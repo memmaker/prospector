@@ -4327,7 +4327,7 @@ Function ep_gives(awayteam As _monster, ByRef nextmap As _cords, shipfire() As _
                 y=player.c.y-basis(0).c.y/2
                 x=basis(0).c.x+x
                 y=basis(0).c.y+y
-                If player.questflag(23)=0 Then
+                If player.questflag(23)=0 AndAlso Not rv_nomaps(1) Then
                     lastdrifting=lastdrifting+1
                     If lastdrifting>128  Then lastdrifting=128
 

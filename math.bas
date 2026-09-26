@@ -104,6 +104,15 @@ function sub0(a as single,b as single) as single
     return c
 end function
 
+'RVIP: planets() / planetmap() have max_maps slots. The seven places that add maps
+'without a bound (drifters, wrecks, quests, events, mining, fixstarmap) ask here
+'first: -1 = no room for n more maps (and says so), the map is not added.
+function rv_nomaps(n as short) as short
+    if lastplanet+n<=max_maps then return 0
+    dprint "There is no room for another map in this sector.",14
+    return -1
+end function
+
 function calcosx(x as short,wrap as byte) as short 'Caculates Ofset X for windows less than 60 tiles wide
     dim osx as short
     osx=x-_mwx/2
@@ -116,7 +125,7 @@ function calcosx(x as short,wrap as byte) as short 'Caculates Ofset X for window
 end function
 
 function fixstarmap() as short
-    dim p(2048) as short
+    dim p(max_maps) as short 'RVIP: was 2048, indexed by planet numbers up to max_maps
     dim sp(lastspecial) as short
     dim as string l
     dim as short a,b,c,fixed,fsp,pis,newfix,cc,spfix, debug,f
@@ -139,7 +148,7 @@ function fixstarmap() as short
                 if map(a).planets(b)>0 then
                     pis+=1
                     p(map(a).planets(b))+=1
-                    if p(map(a).planets(b))>1  then
+                    if p(map(a).planets(b))>1 andalso not rv_nomaps(1) then
                         newfix+=1
                         lastplanet=lastplanet+1
                         fixed=fixed+1
@@ -151,7 +160,7 @@ function fixstarmap() as short
                     next
                 endif
             next
-            if map(a).spec=8 and pis=0 then 
+            if map(a).spec=8 and pis=0 andalso not rv_nomaps(1) then
                 fixed+=1
                 newfix+=1
                 lastplanet+=1

@@ -228,6 +228,7 @@ Declare Sub rv_inv Cdecl Alias "rv_inv" (ByVal s As ZString Ptr)
 Declare Sub rv_gameover Cdecl Alias "rv_gameover" ()
 Declare Sub rv_sound Cdecl Alias "rv_sound" (ByVal n As Long, ByVal vol As Long)
 Declare Sub rv_webui(rvmode As Short)
+Declare Function rv_nomaps(n As Short) As Short
 'RVIP: rv_onmap=1 while the main screen (map, messages, sidebar) is what is on screen:
 'set at the main prompts and by display_stars / display_awayteam, cleared by every
 'Cls, menu() and textbox() over the map. A prompt (keyin) inside a question while it is 1 is a
@@ -1781,7 +1782,7 @@ Dim Shared lastshare As Short
 reDim Shared spacemap(sm_x,sm_y) As Short
 Dim Shared combatmap(60,20) As Byte
 Dim Shared planetmap(60,20,max_maps) As Short
-Dim Shared planets(max_maps) As _planet
+ReDim Shared planets(max_maps) As _planet 'RVIP: heap, not static data (260 MB; the web build's initial memory stays small)
 Dim Shared planets_flavortext(max_maps) As String
 Dim Shared civ(3) As _civilisation
 Dim Shared retirementassets(16) As UByte

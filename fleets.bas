@@ -437,7 +437,7 @@ function resolve_fight(f2 as short) as short
         fleet(f2).ty=0 'Delete fleet for basis f2-1
     endif
     
-    if rnd_range(1,100)<=2 and lastdrifting<128 then 'Add drifting debris
+    if rnd_range(1,100)<=2 and lastdrifting<128 andalso not rv_nomaps(1) then 'Add drifting debris
         If fleet(f2).ty=1 then
             lastdrifting+=1                                    
             lastplanet+=1

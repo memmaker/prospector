@@ -27,7 +27,7 @@ cp -R data config web/build/pack/
 cp graphics/*.bmp graphics/*header web/build/pack/graphics/
 emcc $CFLAGS web/build/game.o web/build/webgfx.o web/build/fbdir.o "$LIB/libfbgfx.a" "$LIB/libfb.a" \
   -sUSE_ZLIB -sASYNCIFY -sASYNCIFY_STACK_SIZE=524288 -sSTACK_SIZE=${STACK_SIZE:-8MB} \
-  -sALLOW_MEMORY_GROWTH -sINITIAL_MEMORY=${INITIAL_MEMORY:-400MB} -sENVIRONMENT=web \
+  -sALLOW_MEMORY_GROWTH -sINITIAL_MEMORY=${INITIAL_MEMORY:-128MB} -sMAXIMUM_MEMORY=${MAXIMUM_MEMORY:-1GB} -sENVIRONMENT=web \
   -lidbfs.js -sFORCE_FILESYSTEM \
   -sEXPORTED_RUNTIME_METHODS=FS,IDBFS,HEAPU8,HEAP32,addRunDependency,removeRunDependency \
   -sEXPORTED_FUNCTIONS=_main,_rv_frame,_rv_key,_rv_layout \

@@ -542,7 +542,7 @@ Function asteroid_mining(slot As Short) As Short
     slot=slot-rnd_range(1,10)
     player.fuel=player.fuel-1
     If not(skill_test(player.pilot(0),st_hard,"Pilot")) Then player.fuel=player.fuel-rnd_range(1,3)
-    If (slot<-11 And slot>-13) Or (slot<-51 And slot>-54)  Then
+    If ((slot<-11 And slot>-13) Or (slot<-51 And slot>-54)) AndAlso Not rv_nomaps(1) Then
         dprint "you have discovered a dwarf planet among the asteroids!",10
         no_key=keyin
         lastplanet=lastplanet+1

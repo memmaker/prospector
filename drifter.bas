@@ -24,6 +24,7 @@ function make_drifter(d as _driftingship, bg as short=0,broken as short=0,f2 as 
     randomshop(13)=262 'mudds
     randomshop(14)=262 'mudds
     lastrandomshop=14 '
+    if bg<>0 andalso rv_nomaps(1) then return 0 'RVIP
     if _debug>0 then dprint "DS:"&d.s
     if _debug=18 then d.s=18
     
@@ -476,7 +477,7 @@ function make_drifter(d as _driftingship, bg as short=0,broken as short=0,f2 as 
         planets(m).mon_noamax(3)=5
     endif
     
-    if d.s=20 and (rnd_range(1,100)<10 or _debug>0) then
+    if d.s=20 and (rnd_range(1,100)<10 or _debug>0) andalso not rv_nomaps(1) then
         from.x=38
         from.y=1
         from.m=lastplanet

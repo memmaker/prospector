@@ -1430,7 +1430,7 @@ function give_quest(st as short) as short
             endif
             
         case 8
-            if player.questflag(11)=0 and lastdrifting<128 then
+            if player.questflag(11)=0 and lastdrifting<128 andalso not rv_nomaps(1) then
                 player.questflag(11)=1
                 x=5-rnd_range(1,10)+map(sysfrommap(specialplanet(27))).c.x
                 y=5-rnd_range(1,10)+map(sysfrommap(specialplanet(27))).c.y
