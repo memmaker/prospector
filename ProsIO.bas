@@ -1255,7 +1255,8 @@ function display_awayteam(showshipandteam as byte=1,osx as short=555) as short
         draw string(sidebar,l*_fh2),"Temp: " &round_nr(adisloctemp,1) &chr(248)&"C",,Font2,custom,@_col
         l+=1
         draw string(sidebar,l*_fh2),"Gravity: " &planets(map).grav,,Font2,custom,@_col
-        if len(trim(tmap(awayteam.c.x,awayteam.c.y).desc))<18 then
+        'port: awayteam.c is off the 61x21 map when this shows in space (T key): ASan overflow
+        if awayteam.c.x>=0 andalso awayteam.c.x<=60 andalso awayteam.c.y>=0 andalso awayteam.c.y<=20 andalso len(trim(tmap(awayteam.c.x,awayteam.c.y).desc))<18 then
             l+=1
             draw string(sidebar,l*_fh2),tmap(awayteam.c.x,awayteam.c.y).desc,,Font2,custom,@_col ';planetmap(awayteam.c.x,awayteam.c.y,map)
         endif
