@@ -50,7 +50,7 @@ parts.append(section('tips', 'Tips', info['Tips']))
 parts.append(section('guide', "New player's guide", ''.join(f'<h3>{esc(t)}</h3>{b}' for t, b in GUIDES[PAGE])))
 parts.append(section('web', 'Playing in the browser', info['In the browser']))
 parts.append(section('manual', 'Manual',
-                     '<p>The game\'s manual by Matthias Mennel (2011; some keys changed later, the lists above are current): '
+                     '<p>The game\'s manual by Matthias Mennel (version 1.1, 2014; some keys changed later, the lists above are current): '
                      '<a href="Manual.pdf" target="_blank" rel="noopener">open Manual.pdf</a>.</p>'
                      '<iframe src="Manual.pdf" title="Prospector manual" loading="lazy"></iframe>'))
 parts.append('<h2 id="h-version">About this version</h2><ul>'
