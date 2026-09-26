@@ -410,13 +410,18 @@ Next: **stage 5 (web page)**. What stage 5 needs:
   Ctrl-l conversion in the log not seen in a test (no star in range).
 
 Next: **stage 6 (docs + sound)**. What stage 6 needs:
-- Sound: the game's own effects in `sound/` and music in `music/` (licences
-  per `README.txt`); the build uses `prospector_nosound.bas` (no FMOD). The
-  game's sound calls go through `play_sound(n)` / `load_sounds` (grep
-  `play_sound` / `_FMODSOUND` in `fileIO.bas`, `prospector_fbsound.bas`); add a
-  C hook (like `rv_msg` in `port/webgfx.c`, EM_ASM) that `play_sound` calls
-  under `__FB_JS__`, and wire it to `rvip-sound.js`; Sound/Music buttons off by
-  default, state in `web-layout.json`.
+- Sound: there are no `sound/` or `music/` folders and no music: the game's
+  11 effects are `data/*.wav` (alarm_1/2, weap_1..5, wormhole, start, land,
+  pain; licence: the game's, `README.txt`), loaded by `load_sounds`
+  (`fileIO.bas`) into `sound(n)` (1-12). There is no central play routine:
+  about 37 inline pairs `#ifdef _FMODSOUND FSOUND_PlaySound(FSOUND_FREE,
+  sound(n))` / `#ifdef _FBSOUND fbs_Play_Wave(sound(n))` (texts.bas,
+  exploreplanet.bas, spacecom.bas, main.bas, ProsIO.bas, crew.bas, landing.bas),
+  gated by `configflag(con_sound)`; the build defines neither. Add one
+  `rv_sound(n)` (C hook like `rv_msg` in `port/webgfx.c`, EM_ASM) next to each
+  pair under `#ifdef __FB_JS__` and play `data/*.wav` with `rvip-sound.js`;
+  Sound button off by default (no Music button: no music), state in
+  `web-layout.json`.
 - Docs: a `GAMES` entry in `~/Desktop/Games/Roguelikes/Docs/build-docs.py`
   from `doc/Manual.pdf` (2011, 22 pages) and `Manual.pdf` (2014) plus the
   in-game command list (`?` → Keybindings, `config/keybindings.txt`); mention
