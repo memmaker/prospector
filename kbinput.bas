@@ -815,7 +815,8 @@ end sub
 'RVIP: the web page's windows (port/webgfx.c, web/prospector.js). At a main
 'prompt (mode 1 space, 2 planet/station) the page shows the map, message and
 'sidebar parts of the screen in their own windows; anything else (menus,
-'dialogs, questions, title, combat) is shown whole over the map. The
+'dialogs, questions, title, combat) is shown whole over the map; the Map
+'window follows the ship / away team (hx,hy) when it is smaller than the map. The
 'inventory goes as text, coloured by kind (the game's own list has one colour;
 'Angband-style colours by category, itemcat()).
 sub rv_webui(rvmode as short)
@@ -823,7 +824,15 @@ sub rv_webui(rvmode as short)
     dim as short invn(1024)
     dim as short last,i,c,col
     dim as string t
-    rv_regions(rvmode,(_mwx+1)*_fw1,22*_fh1,fix((22*_fh1)/_fh2)*_fh2,sidebar)
+    static as short hx,hy 'ship / away team cell centre on the map part (px), kept for nested prompts
+    if rvmode=1 then
+        hx=(player.c.x-player.osx)*_fw1+_fw1\2
+        hy=(player.c.y-player.osy)*_fh1+_fh1\2
+    elseif rvmode=2 then
+        hx=(awayteam.c.x-calcosx(awayteam.c.x,planets(player.map).depth))*_fw1+_fw1\2
+        hy=awayteam.c.y*_fh1+_fh1\2
+    endif
+    rv_regions(rvmode,(_mwx+1)*_fw1,22*_fh1,fix((22*_fh1)/_fh2)*_fh2,sidebar,hx,hy)
     if rvmode=0 then exit sub
     last=get_item_list(inv(),invn())
     for i=1 to last

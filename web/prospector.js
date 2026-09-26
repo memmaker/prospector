@@ -36,7 +36,7 @@
 	function hexcol(rgb) { return '#' + ('00000' + (rgb & 0xffffff).toString(16)).slice(-6); }
 
 	/* ---------- drawing ---------- */
-	function lay() { var p = Module._rv_layout() >> 2, H = Module.HEAP32; return { mode: H[p], mw: H[p + 1], mh: H[p + 2], my: H[p + 3], side: H[p + 4], serial: H[p + 5] }; }
+	function lay() { var p = Module._rv_layout() >> 2, H = Module.HEAP32; return { mode: H[p], mw: H[p + 1], mh: H[p + 2], my: H[p + 3], side: H[p + 4], serial: H[p + 5], hx: H[p + 6], hy: H[p + 7] }; }
 	function fitScale(w, h, vw, vh) { return Math.max(1, Math.min(4, Math.floor(Math.min(vw / w, vh / h)))); }
 	/* copy part (sx, sy, w, h) of the frame into window canvas id at scale sc */
 	function blit(id, sx, sy, w, h, sc) {
@@ -69,7 +69,7 @@
 		var mw = Math.min(l.mw, l.side), mh = Math.min(l.mh, h), body = $('map');
 		if (auto) L.scale = fitScale(mw, mh, body.clientWidth, body.clientHeight);
 		blit('map', 0, 0, mw, mh, L.scale);
-		RvipWM.center(cvs.map.cv, mw * L.scale / 2, mh * L.scale / 2, mw * L.scale, mh * L.scale);   /* the game scrolls its map itself */
+		RvipWM.center(cvs.map.cv, l.hx * L.scale, l.hy * L.scale, mw * L.scale, mh * L.scale);   /* the ship, from the game (clamped; centred when it fits) */
 		blit('stat', l.side, 0, w - l.side, h, L.sscale);
 	}
 	function frame() {

@@ -104,9 +104,10 @@ EMSCRIPTEN_KEEPALIVE void *rv_frame(int page) {
    main prompt, map / messages / sidebar are split into windows; mode 0 = a
    menu, dialog or other full screen, shown whole over the map. Messages and
    the inventory come as text (Latin-1) with the game's colours. */
-static int layout[6];   /* mode, map w, map h, messages y, sidebar x, serial */
+static int layout[8];   /* mode, map w, map h, messages y, sidebar x, serial, ship x, y (px on the map part) */
 EMSCRIPTEN_KEEPALIVE int *rv_layout(void) { return layout; }
-void rv_regions(int mode, int mw, int mh, int my, int side) {
+void rv_regions(int mode, int mw, int mh, int my, int side, int hx, int hy) {
+  layout[6] = hx; layout[7] = hy;   /* the page centres the Map window on it */
   if (layout[0] == mode && layout[1] == mw && layout[2] == mh && layout[3] == my && layout[4] == side) return;
   layout[0] = mode; layout[1] = mw; layout[2] = mh; layout[3] = my; layout[4] = side; layout[5]++;
 }

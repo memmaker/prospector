@@ -222,7 +222,7 @@ Dim Shared walking As Short
 Dim Shared As Short rv_menumode,rv_preitem,rv_prenum 'RVIP: 1 space / 2 planet prompt (Enter menu); item preselected by the item menu
 Dim Shared As String rv_pend,rv_spend 'RVIP: key to run when a walk to stairs/ship (walking=13) or a space autopilot walk arrives
 'RVIP: web page windows and game end, port/webgfx.c (no-ops natively)
-Declare Sub rv_regions Cdecl Alias "rv_regions" (ByVal mode As Long, ByVal mw As Long, ByVal mh As Long, ByVal my As Long, ByVal side As Long)
+Declare Sub rv_regions Cdecl Alias "rv_regions" (ByVal mode As Long, ByVal mw As Long, ByVal mh As Long, ByVal my As Long, ByVal side As Long, ByVal hx As Long, ByVal hy As Long)
 Declare Sub rv_msg Cdecl Alias "rv_msg" (ByVal s As ZString Ptr, ByVal rgb As Long, ByVal rep As Long)
 Declare Sub rv_inv Cdecl Alias "rv_inv" (ByVal s As ZString Ptr)
 Declare Sub rv_gameover Cdecl Alias "rv_gameover" ()
