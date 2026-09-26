@@ -1,5 +1,17 @@
 
 function keyin(byref allowed as string="" , blocked as short=0)as string
+    'RVIP: global screens (logbook, equipment, roster...) open from nested prompts
+    'only two deep; random keys nested them until the stack overflowed (ASan)
+    static depth as short
+    dim k as string
+    depth+=1
+    if depth>2 and blocked=0 then blocked=1
+    k=rv_keyin0(allowed,blocked)
+    depth-=1
+    return k
+end function
+
+function rv_keyin0(byref allowed as string="" , blocked as short=0)as string
     dim key as string
     dim as string text
     static as byte recording
@@ -11,6 +23,7 @@ function keyin(byref allowed as string="" , blocked as short=0)as string
     dim as short rvmode=rv_menumode 'RVIP: nested keyin calls (menus) get 0
     rv_menumode=0
     if rvmode>0 then rv_preitem=0
+    rv_webui(rvmode)
     if walking<>0 then sleep 50
     flip
     if _debug>0 and allowed<>"" then allowed &="_"
@@ -797,4 +810,52 @@ sub rv_toggletiles()
     load_fonts
     if configflag(con_tiles)=0 and gt_no(1)=0 then load_tiles 'ASCII start with sysmaptiles off: never loaded
     cls
+end sub
+
+'RVIP: the web page's windows (port/webgfx.c, web/prospector.js). At a main
+'prompt (mode 1 space, 2 planet/station) the page shows the map, message and
+'sidebar parts of the screen in their own windows; anything else (menus,
+'dialogs, questions, title, combat) is shown whole over the map. The
+'inventory goes as text, coloured by kind (the game's own list has one colour;
+'Angband-style colours by category, itemcat()).
+sub rv_webui(rvmode as short)
+    dim as _items inv(1024)
+    dim as short invn(1024)
+    dim as short last,i,c,col
+    dim as string t
+    rv_regions(rvmode,(_mwx+1)*_fw1,22*_fh1,fix((22*_fh1)/_fh2)*_fh2,sidebar)
+    if rvmode=0 then exit sub
+    last=get_item_list(inv(),invn())
+    for i=1 to last
+        col=15 'headline
+        if invn(i)>0 then
+            col=11
+            for c=1 to 10
+                if check_item_filter(inv(i).ty,c) then
+                    select case c
+                    case 1: col=10 'transport
+                    case 2,4: col=7 'weapons
+                    case 3: col=6 'armor
+                    case 5: col=9 'medical
+                    case 6: col=12 'grenades
+                    case 7: col=13 'artwork
+                    case 8: col=14 'resources
+                    case 9: col=11 'equipment
+                    case 10: col=3 'ship equipment
+                    end select
+                    exit for
+                endif
+            next
+        endif
+        t &= hex(palette_(col) and &hFFFFFF,6) & " "
+        if invn(i)>1 then
+            t &= "  " & invn(i) & " " & trim(inv(i).desigp)
+        elseif invn(i)=1 then
+            t &= "  " & trim(inv(i).desig)
+        else
+            t &= trim(inv(i).desig)
+        endif
+        t &= chr(10)
+    next
+    rv_inv(strptr(t))
 end sub

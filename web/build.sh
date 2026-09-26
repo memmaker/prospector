@@ -27,10 +27,11 @@ cp -R data config web/build/pack/
 cp graphics/*.bmp graphics/*header web/build/pack/graphics/
 emcc $CFLAGS web/build/game.o web/build/webgfx.o web/build/fbdir.o "$LIB/libfbgfx.a" "$LIB/libfb.a" \
   -sUSE_ZLIB -sASYNCIFY -sASYNCIFY_STACK_SIZE=524288 -sSTACK_SIZE=${STACK_SIZE:-8MB} \
-  -sALLOW_MEMORY_GROWTH -sINITIAL_MEMORY=${INITIAL_MEMORY:-400MB} -sEXIT_RUNTIME=1 -sENVIRONMENT=web \
+  -sALLOW_MEMORY_GROWTH -sINITIAL_MEMORY=${INITIAL_MEMORY:-400MB} -sENVIRONMENT=web \
   -lidbfs.js -sFORCE_FILESYSTEM \
   -sEXPORTED_RUNTIME_METHODS=FS,IDBFS,HEAPU8,HEAP32,addRunDependency,removeRunDependency \
-  -sEXPORTED_FUNCTIONS=_main,_rv_frame,_rv_key \
+  -sEXPORTED_FUNCTIONS=_main,_rv_frame,_rv_key,_rv_layout \
   --pre-js port/fbstub.js --preload-file web/build/pack@/pack \
   $EXTRA_LDFLAGS -o web/dist/prospector-core.js
-cp web/index.html web/prospector.js "$HOME/Games/rvip-tools/web/rvip-wm.js" web/dist/
+cp web/index.html web/prospector.js web/help.html "$HOME/Games/rvip-tools/web/rvip-wm.js" web/dist/
+cp doc/Manual.pdf web/dist/Manual.pdf

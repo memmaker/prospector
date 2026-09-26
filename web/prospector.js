@@ -1,7 +1,12 @@
 /*
  * Prospector in the browser: port/webgfx.c (FreeBASIC gfx driver) converts
- * the game's SCREENRES framebuffer to RGBA; this file puts it on a canvas,
- * scaled by whole pixels, and sends keys to the game as FB key events.
+ * the game's SCREENRES framebuffer to RGBA; this file blits it into the
+ * windows of rvip-wm.js, scaled by whole pixels, and sends keys to the game
+ * as FB key events. The game says which part of its screen is what
+ * (Module._rv_layout, set in keyin, kbinput.bas rv_webui): at a main prompt
+ * the map part goes to Map and the sidebar to Status; messages and the
+ * inventory come as text (rvMsg, rvInv); menus, dialogs and other full
+ * screens are shown whole in a pop-up over the windows.
  * Game data is preloaded read-only (/pack); the player's files live in
  * IndexedDB (IDBFS mounts /prospector/savegames, config, bones, summary).
  * Loaded before prospector-core.js.
@@ -17,48 +22,125 @@
 		Insert: 82, Delete: 83, F1: 59, F2: 60, F3: 61, F4: 62, F5: 63, F6: 64, F7: 65, F8: 66, F9: 67, F10: 68, F11: 87, F12: 88 };
 	var KEYS = { Enter: [28, 13], Escape: [1, 27], Backspace: [14, 8], Tab: [15, 9] };
 
-	var running = false, cv, ctx, img = null, scale = 0, auto = true, wantSaveFlag = false, lastSave = 0;
+	var running = false, ended = false, wantSaveFlag = false, lastSave = 0;
+	var off, offCtx, img = null, serial = -1, full = true, wm = null;
+	var LAYOUT = ROOT + '/config/web-layout.json', L = { scale: 0, sscale: 1, font: 13, wm: null }, auto = true;
+	var cvs = {};   /* id -> { cv, ctx } : map, stat, pop */
 
 	function $(id) { return document.getElementById(id); }
 	function status(msg, isError) {
 		var s = $('status');
 		s.textContent = msg; s.hidden = !msg; s.classList.toggle('error', !!isError);
 	}
+	function latin1(p) { var s = '', c; while ((c = Module.HEAPU8[p++])) s += String.fromCharCode(c); return s; }
+	function hexcol(rgb) { return '#' + ('00000' + (rgb & 0xffffff).toString(16)).slice(-6); }
 
 	/* ---------- drawing ---------- */
-	function fit(w, h) {
-		var g = $('game'), s = Math.floor(Math.min(g.clientWidth / w, g.clientHeight / h));
-		return Math.max(1, Math.min(4, s));
+	function lay() { var p = Module._rv_layout() >> 2, H = Module.HEAP32; return { mode: H[p], mw: H[p + 1], mh: H[p + 2], my: H[p + 3], side: H[p + 4], serial: H[p + 5] }; }
+	function fitScale(w, h, vw, vh) { return Math.max(1, Math.min(4, Math.floor(Math.min(vw / w, vh / h)))); }
+	/* copy part (sx, sy, w, h) of the frame into window canvas id at scale sc */
+	function blit(id, sx, sy, w, h, sc) {
+		var c = cvs[id];
+		if (c.cv.width !== w || c.cv.height !== h) { c.cv.width = w; c.cv.height = h; c.ctx.imageSmoothingEnabled = false; }
+		c.cv.style.width = w * sc + 'px'; c.cv.style.height = h * sc + 'px';
+		c.ctx.drawImage(off, sx, sy, w, h, 0, 0, w, h);
 	}
-	function draw() {
+	function draw(force) {
 		var f = Module._rv_frame(-1) >> 2, H = Module.HEAP32;
 		var w = H[f], h = H[f + 1], dirty = H[f + 2], px = H[f + 3];
 		if (!w) return;
 		if (!img || img.width !== w || img.height !== h) {
-			cv.width = w; cv.height = h;
-			img = ctx.createImageData(w, h);
-			if (auto) scale = fit(w, h);
-			cv.style.width = w * scale + 'px'; cv.style.height = h * scale + 'px';
+			off.width = w; off.height = h;
+			img = offCtx.createImageData(w, h);
 			dirty = 1;
 		}
-		if (!dirty) return;
-		img.data.set(Module.HEAPU8.subarray(px, px + w * h * 4));
-		ctx.putImageData(img, 0, 0);
+		var l = lay();
+		if (l.serial !== serial) { serial = l.serial; dirty = 1; }
+		if (!dirty && !force) return;
+		if (dirty) { img.data.set(Module.HEAPU8.subarray(px, px + w * h * 4)); offCtx.putImageData(img, 0, 0); }
+		full = !(l.mode > 0 && wm && wm.shown('map') && wm.shown('stat') && wm.shown('msg') && l.side > 0 && l.side < w);
+		$('pop').hidden = !full;
+		if (full) {   /* menus, dialogs, title: the whole screen over the windows */
+			var g = $('game'), s = Math.min(g.clientWidth / w, g.clientHeight / h);
+			s = s >= 1 ? Math.min(4, Math.floor(s)) : s;
+			blit('pop', 0, 0, w, h, s);
+			return;
+		}
+		var mw = Math.min(l.mw, l.side), mh = Math.min(l.mh, h), body = $('map');
+		if (auto) L.scale = fitScale(mw, mh, body.clientWidth, body.clientHeight);
+		blit('map', 0, 0, mw, mh, L.scale);
+		RvipWM.center(cvs.map.cv, mw * L.scale / 2, mh * L.scale / 2, mw * L.scale, mh * L.scale);   /* the game scrolls its map itself */
+		blit('stat', l.side, 0, w - l.side, h, L.sscale);
 	}
 	function frame() {
 		if (running) draw();
 		requestAnimationFrame(frame);
 	}
+	function saveLayout() {
+		try { Module.FS.writeFile(LAYOUT, JSON.stringify({ scale: auto ? 0 : L.scale, sscale: L.sscale, font: L.font, wm: L.wm })); syncFiles(); } catch (e) { }
+	}
 	function zoom(d) {
-		if (!img) return;
 		auto = false;
-		scale = Math.max(1, Math.min(4, scale + d));
-		cv.style.width = img.width * scale + 'px'; cv.style.height = img.height * scale + 'px';
-		try { Module.FS.writeFile(ROOT + '/config/web-zoom.json', JSON.stringify({ scale: scale })); syncFiles(); } catch (e) { }
+		L.scale = Math.max(1, Math.min(4, (L.scale || 1) + d));
+		saveLayout(); draw(true);
+	}
+	function fonts() { $('msg').style.fontSize = $('inv').style.fontSize = L.font + 'px'; }
+	/* windows: the shared tiling window manager (rvip-wm.js, RVIP W4) */
+	function makeWM() {
+		try { var s = JSON.parse(Module.FS.readFile(LAYOUT, { encoding: 'utf8' })); if (s) { L.scale = s.scale | 0; L.sscale = s.sscale || 1; L.font = s.font || 13; L.wm = s.wm || null; } } catch (e) { }
+		auto = !L.scale;
+		fonts();
+		wm = RvipWM({
+			area: $('game'), menu: $('btn-layout'),
+			wins: [{ id: 'map', title: 'Map' }, { id: 'msg', title: 'Messages' }, { id: 'stat', title: 'Status' }, { id: 'inv', title: 'Inventory' }],
+			multi: { d: 'h', r: 0.7, a: { d: 'v', r: 0.75, a: 'map', b: 'msg' }, b: { d: 'v', r: 0.6, a: 'stat', b: 'inv' } },
+			single: 'map',
+			state: L.wm,
+			save: function (st) { L.wm = st; saveLayout(); },
+			layout: function () { if (running) draw(true); },
+			font: function (id, d) {
+				if (id === 'map') return zoom(d);
+				if (id === 'stat') L.sscale = Math.max(1, Math.min(4, L.sscale + d));
+				else L.font = Math.max(8, Math.min(28, L.font + d));
+				fonts(); saveLayout(); draw(true);
+			},
+			onReset: function () { auto = true; L.scale = 0; L.sscale = 1; L.font = 13; L.wm = wm.state(); fonts(); saveLayout(); draw(true); }
+		});
+		wm.apply();
+	}
+	/* from the game (port/webgfx.c): messages, inventory, game end */
+	var invText = null;
+	function rvMsg(p, rgb, rep) { RvipWM.log($('msg'), { t: latin1(p), color: hexcol(rgb) }, !!rep); }
+	function rvInv(p) {
+		var t = latin1(p);
+		if (t === invText) return;
+		invText = t;
+		var box = $('inv'); box.textContent = '';
+		t.split('\n').forEach(function (line) {
+			if (!line) return;
+			var d = document.createElement('div');
+			d.style.color = '#' + line.slice(0, 6); d.textContent = line.slice(7);
+			box.appendChild(d);
+		});
+	}
+	function rvGameOver() {
+		ended = true;
+		syncFiles();
+		status('The game has ended. Press any key for a new game.');
 	}
 
 	/* ---------- input ---------- */
 	function onKey(e) {
+		if (!$('help').hidden) {
+			if (e.key === 'Escape') { $('help').hidden = true; e.preventDefault(); }
+			return;
+		}
+		if (ended) {   /* game over: save, reload into a new game (RVIP W5) */
+			if (e.metaKey || e.ctrlKey || e.altKey || /^(Shift|Control|Alt|Meta)$/.test(e.key)) return;
+			ended = false; running = false; e.preventDefault();
+			syncFiles(function () { location.reload(); });
+			return;
+		}
 		if (!running || e.isComposing || e.metaKey) return;
 		var k = e.key, sc = 0, a;
 		if (SCAN[k] !== undefined && !/^Numpad/.test(e.code || '')) { sc = SCAN[k]; a = 0; }
@@ -162,6 +244,20 @@
 		syncFiles();
 	}
 
+	/* ---------- help ---------- */
+	var helpLoaded = false;
+	function toggleHelp() {
+		var h = $('help');
+		h.hidden = !h.hidden;
+		if (!h.hidden && !helpLoaded) {
+			helpLoaded = true;
+			fetch('help.html').then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
+				.then(function (t) { $('help-body').innerHTML = t; })
+				.catch(function (err) { helpLoaded = false; $('help-body').textContent = 'Could not load the guide (' + err + '). Press ? in the game for its own help.'; });
+		}
+		if (!h.hidden) $('help-body').focus();
+	}
+
 	/* ---------- startup ---------- */
 	/* /prospector = the game folder: data and graphics files linked from
 	   /pack, data/highscore.dat linked to savegames/highscore.dat */
@@ -187,25 +283,19 @@
 			Module.addRunDependency('idbfs');
 			FS.syncfs(true, function (err) {
 				if (err) status('Could not read saved games from IndexedDB (' + err + '). Saving may not work in this browser mode.', true);
-				try { scale = JSON.parse(FS.readFile(ROOT + '/config/web-zoom.json', { encoding: 'utf8' })).scale || 0; } catch (e) { scale = 0; }
 				Module.removeRunDependency('idbfs');
 			});
 		}],
 		onRuntimeInitialized: function () {
 			setupFolder();   /* the preloaded /pack exists only now */
-			auto = !scale;
 			$('game').hidden = false;
+			makeWM();
 			running = true; status('');
 			requestAnimationFrame(frame);
 			setInterval(autosave, 500);
 		},
-		onExit: function (code) {
-			running = false;
-			syncFiles(function () {
-				$('overlay-msg').textContent = 'Your saved games stay in this browser. Play again to continue one or start a new one.';
-				$('overlay').hidden = false;
-			});
-		},
+		rvMsg: rvMsg, rvInv: rvInv, rvGameOver: rvGameOver,
+		onExit: function (code) { rvGameOver(); },   /* an END the game reaches without rv_gameover (error paths) */
 		print: function (s) { console.log(s); },
 		printErr: function (s) { console.warn(s); },
 		setStatus: function (s) { if (s && !running) status(s.replace(/\(\d+\/\d+\)/, '').trim() || 'Loading…'); },
@@ -227,12 +317,16 @@
 		if (e.error instanceof WebAssembly.RuntimeError || /prospector-core/.test(e.filename || '')) crashed(e.error || e.message);
 	});
 	document.addEventListener('visibilitychange', function () { if (document.hidden) wantSaveFlag = true; });
-	window.addEventListener('resize', function () { if (auto && img) { img = null; draw(); } });
+	window.addEventListener('resize', function () { if (wm) wm.apply(); });
 	document.addEventListener('keydown', onKey);
 	document.addEventListener('DOMContentLoaded', function () {
-		cv = document.querySelector('#game canvas');
-		ctx = cv.getContext('2d');
-		cv.style.imageRendering = 'pixelated';
+		off = document.createElement('canvas'); offCtx = off.getContext('2d');
+		['map', 'stat', 'pop'].forEach(function (id) {
+			var cv = document.querySelector('#' + id + ' canvas');
+			cvs[id] = { cv: cv, ctx: cv.getContext('2d') };
+		});
+		$('btn-help').onclick = toggleHelp;
+		$('help-close').onclick = toggleHelp;
 		$('btn-export').onclick = exportSave;
 		$('btn-import').onclick = function () { $('import-file').click(); };
 		$('import-file').onchange = function () { if (this.files[0]) importSave(this.files[0]); this.value = ''; };
@@ -240,7 +334,6 @@
 		$('btn-zoom-in').onclick = function () { zoom(1); };
 		$('btn-zoom-out').onclick = function () { zoom(-1); };
 		$('btn-tiles').onclick = toggleTiles;
-		$('btn-restart').onclick = function () { location.reload(); };
 		document.querySelectorAll('button').forEach(function (b) {
 			b.addEventListener('mousedown', function (e) { e.preventDefault(); });
 		});

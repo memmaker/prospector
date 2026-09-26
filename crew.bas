@@ -172,6 +172,12 @@ function captain_perks(slot as short) as short
                         sm_y=newsm_y
                         redim spacemap(sm_x,sm_y) as short
                         redim vismask(sm_x,sm_y) as byte
+                        'RVIP: set_globals placed the stations for the old size; on a smaller
+                        'map gen_traderoutes wrote past its map (ASan). Same places as set_globals.
+                        basis(0).c.x=sm_x/2
+                        basis(0).c.y=sm_y/2
+                        basis(1).c.y=sm_y-10
+                        basis(2).c.x=sm_x-10
                     endif
                     if newlaststar<>laststar or newwormhole<>wormhole then
                         laststar=newlaststar

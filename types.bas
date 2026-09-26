@@ -221,6 +221,12 @@ Dim Shared ranoutoffuel As Short
 Dim Shared walking As Short
 Dim Shared As Short rv_menumode,rv_preitem,rv_prenum 'RVIP: 1 space / 2 planet prompt (Enter menu); item preselected by the item menu
 Dim Shared As String rv_pend,rv_spend 'RVIP: key to run when a walk to stairs/ship (walking=13) or a space autopilot walk arrives
+'RVIP: web page windows and game end, port/webgfx.c (no-ops natively)
+Declare Sub rv_regions Cdecl Alias "rv_regions" (ByVal mode As Long, ByVal mw As Long, ByVal mh As Long, ByVal my As Long, ByVal side As Long)
+Declare Sub rv_msg Cdecl Alias "rv_msg" (ByVal s As ZString Ptr, ByVal rgb As Long, ByVal rep As Long)
+Declare Sub rv_inv Cdecl Alias "rv_inv" (ByVal s As ZString Ptr)
+Declare Sub rv_gameover Cdecl Alias "rv_gameover" ()
+Declare Sub rv_webui(rvmode As Short)
 Dim Shared itemcat(11) As String
 Dim Shared shopname(4) As String
 
@@ -2315,6 +2321,7 @@ Declare Function com_targetlist(defender As _ship, attacker() As _ship, mines_p(
 Declare Function load_quest_cargo(t As Short,car As Short,dest As Short) As Short
 
 Declare Function keyin(allowed As String ="", blocked As Short=0)As String
+Declare Function rv_keyin0(ByRef allowed As String ="", blocked As Short=0)As String
 Declare Function rv_cmdmenu(allowed As String, mode As Short) As String
 Declare Sub rv_toggletiles()
 Declare Function rv_itemmenu(i As Short, num As Short, mode As Short) As String

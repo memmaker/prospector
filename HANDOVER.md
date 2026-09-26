@@ -332,3 +332,96 @@ Next: **stage 5 (web page)**. What stage 5 needs:
 - `deploy.sh` from another game's (e.g. `~/Games/alphaman`), target
   `ruzzoli.de/roguelikes/prospector/`; not deployed until stage 7.
 - Help button: the Manual `doc/Manual.pdf` (2011) / `Manual.pdf` (2014).
+
+### Stage 5 (web page): done (not deployed, no repo)
+
+- **Windows** (`rvip-wm.js`, loaded from `rvip-tools` by `build.sh`, not forked):
+  **Map**, **Messages**, **Status**, **Inventory**, plus a pop-up (`#pop`)
+  over the whole game area. The game says which part of its screen is what:
+  `keyin` (`kbinput.bas`) calls `rv_webui(rvmode)` on every key poll →
+  `rv_regions(mode, (_mwx+1)*_fw1, 22*_fh1, message y, sidebar)` in
+  `port/webgfx.c` (read by JS through `_rv_layout`). Mode > 0 (the main
+  space/planet/station prompt, `rv_menumode`) → Map = the map part of the
+  framebuffer, Status = the sidebar part (x ≥ `sidebar`), both blitted 1:1 and
+  scaled by whole numbers; mode 0 (menus, dialogs, questions, title, death
+  screens, combat) → the whole screen in the pop-up (fitted, whole numbers when
+  ≥ 1). Messages = text from `dprint` (`rv_msg`, the game's colour
+  `palette_(col)`, repeats "(xN)" replace the last line, `\C` → `Ctrl-`).
+  Inventory = text from `get_item_list` at main prompts (`rv_inv`), headlines
+  white, items coloured by category (`check_item_filter`, Angband-style:
+  weapons grey, armour umber, medical blue, grenades red, artwork violet,
+  resources yellow, equipment cyan; the game's own list has one colour). One
+  window mode = Map only, showing the whole screen as before. A−/A+ on Map =
+  zoom, on Status = its scale, on Messages/Inventory = font.
+- **Layout file**: `/prospector/config/web-layout.json` (IDBFS
+  `/prospector/config`): `{scale (0 = auto fit), sscale, font, wm}`; replaces
+  stage 1's `web-zoom.json`. Tested: hidden Inventory survived a reload.
+- **Memory**: kept `INITIAL_MEMORY=400MB`. `max_maps=4096` (`planets()` 260 MB,
+  `_planet` ≈ 63 KB) is the headroom for the largest "Change mapsize" sector
+  (150 stars + 20 wormholes, up to 9 planets each, plus event/drifting planets
+  that do `lastplanet+=1` without a bound check in 7 places); lowering it could
+  overflow on big maps, lazy allocation needs `planets()` dynamic plus `ubound`
+  in every `for a=0 to max_maps` loop (7 files). Saves store only
+  `0..lastplanet`, so a later change would not break saves.
+- **Death / quit flow (W5)**: the game shows its death text, "last messages?",
+  mission summary, "save summary?", high scores (Esc), then reaches `End`
+  (`config.txt restart:1`); `rv_gameover` (before both `End`s in `main.bas`:
+  title "Quit" and after the game) tells the page, which keeps the last screen,
+  syncs IndexedDB and on the next key reloads into the title menu (new game /
+  load). `rv_gameover` never returns (`emscripten_sleep` loop), no
+  `-sEXIT_RUNTIME` any more; `onExit` (error-path `End`s) does the same. Save
+  and quit (`S y`) → "Till next time!" → key → same. No-op natively.
+- **Bug fixes** (both upstream, found by ASan):
+  - `gen_traderoutes` heap overflow: `set_globals` places the three stations
+    for the default 75×50 map before the talents menu's "Change mapsize"; a
+    narrower map (x < 65) put `basis(2)` outside the new `spacemap`, and
+    `gen_traderoutes` wrote past its local `map()`. Fix (`crew.bas`
+    `changemap`): recompute `basis(0..2).c` for the new size as `set_globals`
+    does. Reproduced natively with keys `{enter}{enter}y{enter}50{enter}50{enter}150{enter}20{enter}b{enter}b{enter}{enter}`, clean after.
+  - Nested prompts blowing the stack: `keyin` is now a wrapper counting its
+    depth around the old body (`rv_keyin0`); from depth 3 on the global screen
+    keys (logbook, E, A, @, ?, m, ...) are ignored (`blocked=1`, the game's own
+    switch), so global screens open at most two deep.
+  - Native ASan random keys with the fixes: seeds 3 and 11 × 3000 keys, no
+    ASan errors (only the 3 known UBSan float→int conversions).
+- **Help**: button opens `help.html` (stub: keys to remember, saving, the
+  game's `doc/Manual.pdf` embedded + link; `build.sh` copies it to
+  `dist/Manual.pdf`); Escape closes, the game gets no keys meanwhile.
+  Tiles/Text and Zoom buttons kept (Tiles/Text tested in windows: regions
+  follow the new `_mwx`/font sizes).
+- **`web/deploy.sh`**: from AlphaMan's plus the step-9 guard, target
+  `ruzzoli.de:/var/www/ruzzoli.de/roguelikes/prospector/`. Run once: refused
+  ("commit + push first"). **Not deployed, no repo.**
+- **Tested** (own tab, hidden pane: frames/canvases POSTed to `shotsrv.py`,
+  `setTimeout` ≤ 20 ms via `MessageChannel`, a `resize` event forces a draw):
+  new game → space (map, sidebar, inventory, log with "(x2)" fold), station
+  interior, landing menu in the pop-up, planet surface; layout survives
+  reload; save (`S y`) → key → reload → Load game → same ship/inventory;
+  death by boiling water/no oxygen on a planet → summary → high scores → key
+  → title; title Quit → key → reload; Help. No console errors.
+- **Open problems**: the map window centres the map part, it does not follow
+  the ship when the window is smaller than the map part (the game scrolls its
+  map itself; at 1024 px width the default split crops ~130 px each side).
+  Every non-main prompt (e.g. "Which direction?", `-more-`-like waits after
+  docking) switches to the whole-screen pop-up. End of game needs two keys
+  (the game's last screen, then the page's). A dead captain's save
+  (`NNC - 0001.sav`) stays in the Load list (upstream autosave). No
+  `RvipWM.prompt` line (questions are visible in the pop-up instead).
+  Ctrl-l conversion in the log not seen in a test (no star in range).
+
+Next: **stage 6 (docs + sound)**. What stage 6 needs:
+- Sound: the game's own effects in `sound/` and music in `music/` (licences
+  per `README.txt`); the build uses `prospector_nosound.bas` (no FMOD). The
+  game's sound calls go through `play_sound(n)` / `load_sounds` (grep
+  `play_sound` / `_FMODSOUND` in `fileIO.bas`, `prospector_fbsound.bas`); add a
+  C hook (like `rv_msg` in `port/webgfx.c`, EM_ASM) that `play_sound` calls
+  under `__FB_JS__`, and wire it to `rvip-sound.js`; Sound/Music buttons off by
+  default, state in `web-layout.json`.
+- Docs: a `GAMES` entry in `~/Desktop/Games/Roguelikes/Docs/build-docs.py`
+  from `doc/Manual.pdf` (2011, 22 pages) and `Manual.pdf` (2014) plus the
+  in-game command list (`?` → Keybindings, `config/keybindings.txt`); mention
+  `#`/`~` explore, `<`/`>` walks, Enter menu, `E` items; guide + Tips +
+  "In the browser" in `guides.py`; `web/make-help.py` → `dist/help.html`
+  (replaces the `web/help.html` stub; keep `Manual.pdf` in dist).
+- Credits: Matthias Mennel (game, zlib licence), David Gervais and Deon
+  (sprites, used with permission).

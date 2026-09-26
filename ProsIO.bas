@@ -2197,10 +2197,13 @@ function dprint(t as string, col as short=11) as short
             lastmessagecount+=1
             if len(displaytext(a))<winw-4 then
                 displaytext(a)=text &"(x"&lastmessagecount &")"
+                rv_msg(strptr(displaytext(a)),palette_(col),1) 'RVIP: web Messages window
                 t=""
             else
                 displaytext(a)=text
                 displaytext(a+1)="(x"&lastmessagecount &")"
+                wtext=text &" (x"&lastmessagecount &")"
+                rv_msg(strptr(wtext),palette_(col),1) 'RVIP: web Messages window
                 t=""
             endif
             text=""
@@ -2216,6 +2219,13 @@ function dprint(t as string, col as short=11) as short
     'if offset=0 then offset=firstline
 
     if text<>"" then
+        wtext=text 'RVIP: web Messages window, \C as the game shows it
+        a=instr(ucase(wtext),"\C")
+        while a>0
+            wtext=left(wtext,a-1) &"Ctrl-"& mid(wtext,a+2)
+            a=instr(ucase(wtext),"\C")
+        wend
+        rv_msg(strptr(wtext),palette_(col),0)
         while displaytext(curline)<>""
             curline+=1
         wend

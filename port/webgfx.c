@@ -99,6 +99,38 @@ EMSCRIPTEN_KEEPALIVE void *rv_frame(int page) {
   return &frame;
 }
 
+/* Windows of the web page (web/prospector.js). The game says which part of
+   its screen is what (rv_regions from keyin, kbinput.bas): mode > 0 = at a
+   main prompt, map / messages / sidebar are split into windows; mode 0 = a
+   menu, dialog or other full screen, shown whole over the map. Messages and
+   the inventory come as text (Latin-1) with the game's colours. */
+static int layout[6];   /* mode, map w, map h, messages y, sidebar x, serial */
+EMSCRIPTEN_KEEPALIVE int *rv_layout(void) { return layout; }
+void rv_regions(int mode, int mw, int mh, int my, int side) {
+  if (layout[0] == mode && layout[1] == mw && layout[2] == mh && layout[3] == my && layout[4] == side) return;
+  layout[0] = mode; layout[1] = mw; layout[2] = mh; layout[3] = my; layout[4] = side; layout[5]++;
+}
+#ifdef __EMSCRIPTEN__
+/* rgb = FB colour (&hAARRGGBB); rep = 1: replaces the last line ("(x2)") */
+void rv_msg(const char *s, int rgb, int rep) {
+  EM_ASM({ if (Module.rvMsg) Module.rvMsg($0, $1, $2); }, s, rgb, rep);
+}
+/* lines "rrggbb text\n" */
+void rv_inv(const char *s) {
+  EM_ASM({ if (Module.rvInv) Module.rvInv($0); }, s);
+}
+/* the game is over (before its END): the page waits for a key, saves and
+   reloads for a new game; exit() never runs (no EXIT_RUNTIME, RVIP W5) */
+void rv_gameover(void) {
+  EM_ASM({ if (Module.rvGameOver) Module.rvGameOver(); });
+  for (;;) emscripten_sleep(1000);
+}
+#else
+void rv_msg(const char *s, int rgb, int rep) {}
+void rv_inv(const char *s) {}
+void rv_gameover(void) {}
+#endif
+
 /* A key from JS: scancode (FB SC_*), ascii (0 for extended keys). */
 EMSCRIPTEN_KEEPALIVE void rv_key(int scancode, int ascii) {
   EVENT e;
