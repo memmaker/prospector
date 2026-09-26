@@ -242,10 +242,11 @@ Function ep_areaeffects(areaeffect() As _ae,ByRef last_ae As Short,lavapoint() A
 End Function
 
 Function ep_atship() As Short
-    Dim As Short slot,a,who(128)
+    Dim As Short slot,a,who(128),w
     slot=player.map
     If awayteam.c.y=player.landed.y And awayteam.c.x=player.landed.x And slot=player.landed.m Then
         location=lc_onship
+        w=walking 'RVIP: the routine at-ship messages do not stop autoexplore
         dprint "You are at the ship. Press "&key_la &" to launch."
         If awayteam.oxygen<awayteam.oxymax Then dprint "Refilling oxygen.",10
         awayteam.oxygen=awayteam.oxymax
@@ -268,6 +269,7 @@ Function ep_atship() As Short
         if awayteam.leak>0 then repair_spacesuit()
         check_tasty_pretty_cargo
         alerts()
+        If walking=0 And (w=12 Or w=13) Then walking=w
         Return 0
     Else
         location=lc_awayteam
@@ -309,6 +311,7 @@ Function ep_autoexploreroute(astarpath() As _cords,start As _cords,move As Short
         For y=0 To 20
             If move<tmap(x,y).walktru Then candidate(x,y)=1
             If tmap(x,y).onopen<>0 Then candidate(x,y)=0
+            If rover=0 And planetmap(x,y,slot)<0 Then candidate(x,y)=1 'RVIP: the player floods only over cells he has seen
         Next
     Next
     flood_fill(start.x,start.y,candidate(),3)
@@ -343,7 +346,7 @@ Function ep_autoexploreroute(astarpath() As _cords,start As _cords,move As Short
     For x=0 To 60
         For y=0 To 20
             If x<>start.x Or y<>start.y Then
-                 If candidate(x,y)=255 And planetmap(x,y,slot)<0 Then
+                 If (candidate(x,y)=255 And planetmap(x,y,slot)<0) Or (rover=0 And ep_rvfrontier(x,y,slot,move,candidate())) Then
                     p.x=x
                     p.y=y
                     If distance(p,start,planets(slot).depth)<d Then
@@ -358,6 +361,7 @@ Function ep_autoexploreroute(astarpath() As _cords,start As _cords,move As Short
     Next
     If notargets=0 Then
         if rover=0 then
+            If slot<>player.landed.m Then Return -1 'RVIP: nothing left and the ship is not on this map
             target.x=player.landed.x
             target.y=player.landed.y
         else
@@ -373,7 +377,7 @@ Function ep_autoexploreroute(astarpath() As _cords,start As _cords,move As Short
         EndIf
     EndIf
     If target.x=start.x And target.y=start.y Then Return -1
-    last=ep_planetroute(path(),move,start,target,planets(slot).depth)
+    last=ep_planetroute(path(),move,start,target,planets(slot).depth,iif(rover=0,slot,-1))
     If last=-1 Then Return -1
     For i=0 To last
         astarpath(i+1).x=path(i).x
@@ -383,7 +387,7 @@ Function ep_autoexploreroute(astarpath() As _cords,start As _cords,move As Short
     Return last
 End Function
 
-Function ep_planetroute(route() As _cords,move As Short,start As _cords, target As _cords,rollover As Short) As Short
+Function ep_planetroute(route() As _cords,move As Short,start As _cords, target As _cords,rollover As Short,slot As Short=-1) As Short
     Dim As Short x,y,astarmap(60,20)
     For x=0 To 60
         For y=0 To 20
@@ -391,9 +395,71 @@ Function ep_planetroute(route() As _cords,move As Short,start As _cords, target 
             If move<tmap(x,y).walktru Then astarmap(x,y)=1500
             If tmap(x,y).onopen<>0 Then astarmap(x,y)=0
             If tmap(x,y).no=45 Then astarmap(x,y)=1500
+            If slot>=0 Then
+                If planetmap(x,y,slot)<0 And (x<>target.x Or y<>target.y) Then astarmap(x,y)=1500 'RVIP: route over seen cells only
+            EndIf
         Next
     Next
     Return a_star(route(),target,start,astarmap(),60,20,0,rollover)
+End Function
+
+Function ep_rvfrontier(x As Short,y As Short,slot As Short,move As Short,candidate() As Short) As Short
+    'RVIP: an unseen, passable cell next to the seen area the player can reach
+    Dim As Short i,j
+    If planetmap(x,y,slot)>=0 Then Return 0
+    If move<tmap(x,y).walktru And tmap(x,y).onopen=0 Then Return 0
+    For i=x-1 To x+1
+        For j=y-1 To y+1
+            If i>=0 And i<=60 And j>=0 And j<=20 Then
+                If candidate(i,j)=255 Then Return -1
+            EndIf
+        Next
+    Next
+    Return 0
+End Function
+
+Function ep_rvstairs(slot As Short,Key As String,ByRef nextmap As _cords) As Short
+    'RVIP: < / > off a portal: walk to the nearest known stairs/tunnel/portal and take it on arrival (walking=13).
+    'None known: < walks to the ship and launches there.
+    Dim As Short b,i,last
+    Dim As Single d=9999
+    Dim As _cords p,t,path(1283)
+    For b=1 To lastportal
+        If portal(b).discovered=1 Then
+            p.m=-1
+            If portal(b).from.m=slot And portal(b).oneway<=2 Then p=portal(b).from
+            If portal(b).dest.m=slot And portal(b).oneway=0 Then p=portal(b).dest
+            If p.m=slot Then
+                If distance(p,awayteam.c)<d Then d=distance(p,awayteam.c): t=p
+            EndIf
+        EndIf
+    Next
+    If d<9999 Then
+        rv_pend=key_portal
+    ElseIf Key=">" Then
+        dprint "No known way down here."
+        Return 0
+    ElseIf slot=player.landed.m Then
+        If awayteam.c.x=player.landed.x And awayteam.c.y=player.landed.y Then Return ep_launch(nextmap)
+        t=player.landed
+        rv_pend=key_la
+    Else
+        dprint "No known way up here."
+        Return 0
+    EndIf
+    last=ep_planetroute(path(),awayteam.movetype,awayteam.c,t,planets(slot).depth,slot)
+    If last<0 Then
+        dprint "No known path there."
+        Return 0
+    EndIf
+    For i=0 To last
+        apwaypoints(i+1).x=path(i).x
+        apwaypoints(i+1).y=path(i).y
+    Next
+    lastapwp=last+1
+    currapwp=0
+    walking=13
+    Return 0
 End Function
 
 Function ep_checkmove(ByRef old As _cords,Key As String) As Short

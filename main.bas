@@ -1120,6 +1120,7 @@ Function explore_space() As Short
         If player.e.tick=-1 And player.dead=0 Then
             fl=0
             allowed=key_awayteam & key_ra & key_drop &key_la &key_tala &key_dock &key_sc &key_inspect & key_rename & key_comment & key_save &key_quit &key_tow &key_walk &key_wait
+            allowed=allowed &key_autoexplore &"~<>" 'RVIP
             allowed= allowed & key_nw & key_north & key_ne & key_east & key_west & key_se & key_south & key_sw &key_optequip
             If artflag(25)>0 Then allowed=allowed &key_te
             If debug=11 And _debug=1 Then allowed=allowed &"�"
@@ -1134,6 +1135,7 @@ Function explore_space() As Short
 
             For a=0 To lastfleet
                 If distance(player.c,fleet(a).c)<1.5 Then
+                    If walking=10 And a>5 And fleet(a).ty<>1 And fleet(a).ty<>3 Then walking=0 'RVIP: a pirate/alien fleet stops the autopilot
                     fl=meet_fleet(a)
                     fleetcom=1
                     Exit For
@@ -1215,6 +1217,15 @@ Function explore_space() As Short
             if player.dead=0 then Key=keyin(allowed,walking)
             
             player=move_ship(Key)
+            'RVIP: explore / > in space; land or dock when a > walk arrives
+            If walking=0 And rv_spend<>"" Then
+                If player.c.x=rv_spendc.x And player.c.y=rv_spendc.y Then Key=rv_spend
+                rv_spend=""
+            EndIf
+            If Key="~" Then Key=key_autoexplore
+            If Key=key_autoexplore Then Key=rv_spacewalk(0)
+            If Key=">" Then Key=rv_spacewalk(1)
+            If Key="<" Then dprint "In space: > flies to the nearest known planet or station and lands/docks, "&key_autoexplore &" flies to the nearest unvisited system."
 
             planetcom=0
             fleetcom=0
@@ -1678,7 +1689,7 @@ Function explore_planet(from As _cords, orbit As Short) As _cords
     'allowed="12346789ULXFSQRWGCHDO"&key_pickup &key__i
     allowed=key_awayteam &key_ju & key_te & key_fi &key_save &key_quit &key_ra &key_walk & key_gr & key_he _
      & key_la & key_pickup & key_inspect & key_ex & key_of & key_co & key_drop & key_gr & key_wait _
-     & key_portal &key_oxy &key_close & key_report &key_autofire &key_autoexplore
+     & key_portal &key_oxy &key_close & key_report &key_autofire &key_autoexplore &"~<>"
     comstr.t=key_ex &" examine;" &key_fi &" fire,"&key_autofire &" autofire;" &key_autoexplore &" autoexplore;"_
      & key_gr &" grenade;" &key_oxy &" open/close helmet;" &key_close &" close door;" &key_drop &" Drop;"_
      & key_he &" use medpack;" &key_report &" bioreport;"&key_ra &" radio;"
@@ -2297,6 +2308,7 @@ EndIf
             Flip
             
             If nextmap.m=0 Then Key=keyin(allowed,walking)
+            If Key="~" Then Key=key_autoexplore 'RVIP alias
             if _debug=2704 then print #logfile, "&"&key
             If Key="" Then
                 screenset 0,1
@@ -2345,8 +2357,8 @@ EndIf
                     If walking<10 Then
                         awayteam.c=movepoint(awayteam.c,walking)
                     EndIf
-                    If walking=12 Then
-                        If currapwp=lastapwp Then
+                    If walking=12 Or walking=13 Then
+                        If currapwp=lastapwp And walking=12 Then
                             'awayteam.c=movepoint(awayteam.c,nearest(apwaypoints(currapwp),awayteam.c))
                             lastapwp=ep_autoexplore(slot)
                             currapwp=0
@@ -2357,6 +2369,11 @@ EndIf
                             If awayteam.movetype>=tmap(apwaypoints(currapwp).x,apwaypoints(currapwp).y).walktru Or tmap(apwaypoints(currapwp).x,apwaypoints(currapwp).y).onopen<>0 Then
                                 awayteam.c=apwaypoints(currapwp)
                                 awayteam.c.m=old.m
+                                If walking=13 And currapwp>=lastapwp Then 'RVIP: arrived, take the stairs / launch
+                                    walking=0
+                                    Key=rv_pend
+                                    rv_pend=""
+                                EndIf
                             Else
                                 walking=0
                             EndIf
@@ -2390,8 +2407,8 @@ EndIf
             ep_planeteffect(shipfire(),sf,lavapoint(),localturn,cloudmap())
             ep_areaeffects(areaeffect(),last_ae,lavapoint(),cloudmap())
             If old.x<>awayteam.c.x Or old.y<>awayteam.c.y Or Key=key_pickup Then ep_pickupitem(Key)
-            If old.x<>awayteam.c.x Or old.y<>awayteam.c.y Or Key=key_portal Then nextmap=ep_portal
-            if tmap(old.x,old.y).no<>tmap(awayteam.c.x,awayteam.c.y).no and len(trim(tmap(awayteam.c.x,awayteam.c.y).desc))>18 then dprint tmap(awayteam.c.x,awayteam.c.y).desc '&planetmap(awayteam.c.x,awayteam.c.y,map)
+            If old.x<>awayteam.c.x Or old.y<>awayteam.c.y Or Key=key_portal Or Key=">" Then nextmap=ep_portal
+            if walking<12 and tmap(old.x,old.y).no<>tmap(awayteam.c.x,awayteam.c.y).no and len(trim(tmap(awayteam.c.x,awayteam.c.y).desc))>18 then dprint tmap(awayteam.c.x,awayteam.c.y).desc '&planetmap(awayteam.c.x,awayteam.c.y,map)
         
             If Key=key_inspect Or _autoinspect=0 And (old.x<>awayteam.c.x Or old.y<>awayteam.c.y) Then ep_inspect(localturn)
             If vacuum(awayteam.c.x,awayteam.c.y)=1 And awayteam.helmet=0 Then ep_helmet()
@@ -2411,7 +2428,7 @@ EndIf
             
             ep_atship()
 
-            comstr.t=key_ex &" examine;" &key_fi &" fire,"&key_autofire &" autofire;" &key_autoexplore &" autoexplore;"
+            comstr.t=key_ex &" examine;" &key_fi &" fire,"&key_autofire &" autofire;" &key_autoexplore &" autoexplore;< > stairs/ship;"
             comstr.t=comstr.t & key_gr &" grenade;" &key_oxy &" open/close helmet;" &key_close &" close door;" &key_drop &" Drop;"
             comstr.t=comstr.t & key_he &" use medpack;" &key_report &" bioreport;"&key_ra &" radio;"
             If awayteam.movetype=2 Or awayteam.movetype=3 Then comstr.t=comstr.t &key_ju &" Jetpackjump;"
@@ -2484,6 +2501,7 @@ EndIf
             If Key=key_ju And awayteam.movetype>=2 Then ep_jumppackjump()
 
             If Key=key_la Then ep_launch(nextmap)
+            If (Key=key_portal Or Key=">") And portalindex.index(awayteam.c.x,awayteam.c.y,1)=0 Then ep_rvstairs(slot,Key,nextmap)
 
             If Key=key_he Then
                 If awayteam.disease>0 Then

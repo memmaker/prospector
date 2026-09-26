@@ -1420,7 +1420,10 @@ function display_monsters(osx as short) as short
                             set__color(15,0)
                             draw string ((p.x-osx)*_tix,p.y*_tiy),"E:"&enemy(a).e.e,,font2,custom,@_tcol
                         endif
-                        if player.stuff(3)<>2 and enemy(a).sleeping=0 and enemy(a).aggr=0 then walking=0
+                        if player.stuff(3)<>2 and enemy(a).sleeping=0 and enemy(a).aggr=0 then
+                            'RVIP: open planets show hostiles far away; autoexplore / stairs walks stop for those within 6
+                            if walking<12 or distance(enemy(a).c,awayteam.c)<=6 then walking=0
+                        endif
                     endif
                 endif
             endif
@@ -2173,6 +2176,7 @@ function dprint(t as string, col as short=11) as short
     firstline=fix((22*_fh1)/_fh2)
     winw=fix(((_fw1*_mwx+1))/_fw2)
     winh=fix((_screeny-_fh1*22-_fh2)/_fh2)
+    if t<>"" and t<>lastmessage and (walking=12 or walking=13) then walking=0 'RVIP: a new (not repeated) message stops autoexplore
     if t<>"" then
 '    firstline=0
 '    do

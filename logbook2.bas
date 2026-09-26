@@ -223,6 +223,51 @@ function ap_astar(start as _cords,ende as _cords,diff as short) as short
 end function
 
 
+function rv_spacewalk(mode as short) as string
+    'RVIP: mode 0 (#): autopilot to the nearest seen, unvisited system or wormhole.
+    'mode 1 (>): to the nearest known system or station, then land/dock on arrival (rv_spend).
+    dim as short a
+    dim as single d=99999
+    dim as string act
+    dim as _cords t
+    for a=0 to laststar+wormhole
+        if (mode=0 and map(a).discovered=1 and distance(map(a).c,player.c)>0) or (mode=1 and map(a).discovered>0 and a<=laststar) then
+            if distance(map(a).c,player.c)<d then d=distance(map(a).c,player.c): t=map(a).c: act=key_la
+        endif
+    next
+    if mode=1 then
+        for a=0 to 2
+            if basis(a).c.x>0 and basis(a).discovered>0 then
+                if distance(basis(a).c,player.c)<d then d=distance(basis(a).c,player.c): t=basis(a).c: act=key_dock
+            endif
+        next
+        dim as _cords p
+        for a=1 to lastdrifting 'known small stations and derelicts
+            p.x=drifting(a).x
+            p.y=drifting(a).y
+            if drifting(a).p>0 and planets(drifting(a).m).flags(0)=0 then
+                if distance(p,player.c)<d then d=distance(p,player.c): t=p: act=key_dock
+            endif
+        next
+    endif
+    if d=99999 then
+        if mode=0 then dprint "No unvisited system or wormhole known." else dprint "No known planet or station."
+        return ""
+    endif
+    if d=0 then return act
+    lastapwp=ap_astar(player.c,t,1)
+    if lastapwp<=0 then
+        dprint "No route there."
+        return ""
+    endif
+    currapwp=0
+    apdiff=1
+    walking=10
+    rv_spendc=t
+    if mode=1 then rv_spend=act else rv_spend=""
+    return ""
+end function
+
 function auto_pilot(start as _cords, ende as _cords, diff as short) as short
     lastapwp=ap_astar(start,ende,diff)
     if lastapwp>0 then

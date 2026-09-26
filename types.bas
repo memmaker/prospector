@@ -219,6 +219,7 @@ Dim Shared gamerunning As Byte
 Dim Shared uid As UInteger
 Dim Shared ranoutoffuel As Short
 Dim Shared walking As Short
+Dim Shared As String rv_pend,rv_spend 'RVIP: key to run when a walk to stairs/ship (walking=13) or a space autopilot walk arrives
 Dim Shared itemcat(11) As String
 Dim Shared shopname(4) As String
 
@@ -1719,6 +1720,7 @@ Dim Shared palette_(255) As UInteger
 Dim Shared _swidth As Byte=35'Length of line in a shop
 Dim Shared apwaypoints(1024) As _cords
 Dim Shared lastapwp As Short
+Dim Shared rv_spendc As _cords
 Dim Shared currapwp As Short
 Dim Shared apdiff As Short
 
@@ -2030,7 +2032,10 @@ Declare Function ep_needs_spacesuit(slot As Short,c As _cords,ByRef reason As St
 Declare Function ep_display_clouds(cloudmap() As Byte) As Short
 
 Declare Function ep_autoexplore(slot As Short) As Short
-Declare Function ep_planetroute(route() As _cords,move As Short,start As _cords, target As _cords,rollover As Short) As Short
+Declare Function ep_planetroute(route() As _cords,move As Short,start As _cords, target As _cords,rollover As Short,slot As Short=-1) As Short
+Declare Function ep_rvfrontier(x As Short,y As Short,slot As Short,move As Short,candidate() As Short) As Short
+Declare Function ep_rvstairs(slot As Short,Key As String,ByRef nextmap As _cords) As Short
+Declare Function rv_spacewalk(mode As Short) As String
 Declare Function ep_autoexploreroute(astarpath() As _cords,start As _cords,move As Short, slot As Short, rover As Short=0) As Short
 Declare Function ep_roverreveal(i As Integer) As Short
 

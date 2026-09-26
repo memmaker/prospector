@@ -116,3 +116,80 @@ Next: **stage 2 (explore + stairs)**. What stage 2 needs:
   `f` fire, `g` grenade, `h` medpack, `j` jump pack, `x` examine,
   `c` comment/communicate, `,` pick up, `d` drop/dock, `o` offer, `O` oxygen,
   `C` close door, `E` equipment, `t` tow. Rebindable in `config/keybindings.txt`.
+
+### Stage 2 (explore + stairs): done
+
+- **Explore key**: the game's own `#` (`key_autoexplore`, rebindable in
+  `config/keybindings.txt`; not in either manual, but in the in-game command
+  list) plus `~` as a fixed RVIP alias (mapped to `key_autoexplore` right after
+  `keyin` in both loops). `<` / `>` are fixed keys (`<` = `key_portal`).
+  The command list (`comstr`) on planets now shows `< > stairs/ship`.
+- **Code** (all BASIC, no JS):
+  - `exploreplanet.bas`: `ep_autoexploreroute` (rover=0) now floods only over
+    *seen* cells (`planetmap<0` = unseen blocks the flood) and targets unseen
+    passable cells bordering that area (`ep_rvfrontier`); `ep_planetroute`
+    takes an optional `slot` and costs unseen cells 1500 (except the target);
+    nothing left + ship on another map → -1 (no bogus route). New
+    `ep_rvstairs(slot,key,nextmap)`: nearest known portal end on this map
+    (`portal().discovered=1`, from/dest) → walk (`walking=13`) and take it on
+    arrival (`rv_pend=key_portal`, the game's own Enter y/n prompt); none known:
+    `<` walks to the ship (`player.landed`) and launches there (`rv_pend=key_la`,
+    `ep_launch`), at the ship it launches at once; `>` says "No known way down".
+    `ep_atship` keeps walking 12/13 across its routine messages.
+  - `main.bas` `explore_planet` walking block: `walking=12` (explore, re-plans
+    at path end) and `walking=13` (fixed path; on the last step `Key=rv_pend`,
+    handled later in the same turn by the normal `key_portal`/`key_la` code).
+    Hook: `If (Key=key_portal Or Key=">") And portalindex.index(x,y,1)=0 Then
+    ep_rvstairs`; `>` on a portal also calls `ep_portal`. Terrain descriptions
+    are not printed during walks 12/13.
+  - `main.bas` `explore_space`: after `move_ship`: `#`/`~` →
+    `rv_spacewalk(0)`, `>` → `rv_spacewalk(1)`, `<` explains. `rv_spacewalk`
+    (`logbook2.bas`): 0 = nearest seen, unvisited system/wormhole
+    (`map().discovered=1`), 1 = nearest known system, station (`basis`) or
+    small station/derelict (`drifting().p>0`); route with the logbook
+    autopilot (`ap_astar`, `walking=10`); on arrival `rv_spend` (land `l` /
+    dock `d`) is run (landing still asks which planet). Standing on it: runs
+    it at once. A pirate/alien fleet (`fleet(a)`, a>5, ty not 1/3) within 1.5
+    stops the autopilot.
+  - Stop rules: `dprint` (ProsIO.bas) stops walks 12/13 on a new message
+    (repeats "(xN)" do not stop); a visible awake hostile (`aggr=0`) stops
+    them only within 6 cells (`display_awayteam`, ProsIO.bas; open planets
+    show monsters far away); any key stops (keyin); oxygen/jetpack alerts stop
+    (texts.bas `alerts`, the game's own).
+- **"Known grid" test**: `planetmap(x,y,slot)<0` = not yet seen (abs = tile).
+  Passability of the one unseen target cell is read from `tmap` (small leak:
+  explore never heads into an unseen wall).
+- **Tested** (web build, own tab, frame read via `Module._rv_frame` and POSTed
+  to `rvip-tools/shotsrv.py` because the shared pane was hidden; `setTimeout`
+  ≤ 20 ms routed through a `MessageChannel`): new game; space `>` walked back
+  to the small station and docked; `#` in the station interior; `<` walked to
+  the airlock and launched; space `#` flew to an unvisited white giant
+  ("Target reached"); `>` there opened the landing menu; on a dark rogue planet
+  (visibility 0) `#` × 4 explored the ice field, picked up iron, stopped on
+  messages and on the oxygen alert; `<` walked back to the ship and launched.
+  Native ASan (`port/native-test.sh`, pool now has `#<>~`): 3 × 3000 random
+  keys + a scripted `> # ~ <` run, no ASan errors (only the 3 known UBSan
+  float→int conversions).
+- **Open problems**: portal/stairs walk (`walking=13` to a portal) not seen in
+  a game (no portal found in the tests; same code path as the ship walk).
+  Stepping on a station shop tile during explore opens that shop (game
+  behaviour). With `con_sound=2` the alerts wait for Space/Enter (a hidden
+  `--More--`; stage 3d/auto_more should check `configflag(con_sound)`).
+  Hidden browser-pane tab: rAF stops, so the page shows nothing; tests must
+  read the frame themselves.
+
+Next: **stage 3 (Enter menu + inventory)**. What stage 3 needs:
+- Keys are read only by `keyin(allowed, walking)` in `kbinput.bas` (SCREENEVENT
+  loop; global keys handled there: keybindings, HP display, autoinspect;
+  `allowed` filters per screen). Dispatch is by `If Key=key_xxx` chains in
+  `main.bas` `explore_space` (~l.1120-1460) and `explore_planet` (~l.2440-2560).
+  A command can be started from code by setting `Key` before those chains
+  (as `rv_pend` / `rv_spend` do) or by posting a key (`rv_key` in
+  `port/webgfx.c`, `fb_hPostKey`).
+- The game's own menus: `menu(bg, "Title/a/b/...")` (ProsIO.bas), `textbox`,
+  `askyn`, `get_item(type)` (item picker), `showteam` (`A`), `@` ship status,
+  `E` equipment, `L` logbook, `?` help menu (manual, keybindings,
+  configuration). Key names/defaults: `types.bas` ~l.140-215, saved by
+  `fileIO.bas` (`key_* = ` lines).
+- Manual command lists: `Manual.pdf` (root, 2014) lines ~500-560 of its text
+  ("> - use stairs/tunnel ..."), `doc/Manual.pdf` ~l.600-660 (markitdown).
