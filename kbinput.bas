@@ -65,6 +65,11 @@ function keyin(byref allowed as string="" , blocked as short=0)as string
                             key=key_pageup
                         case sc_pagedown
                             key=key_pagedown
+                        case 120 'RVIP: web page Tiles/Text button (rv_key(120,0)), main prompts only
+                            if rvmode>0 then
+                                rv_toggletiles
+                                return ""
+                            endif
                         'case sc_control
                         '    control="\C"
                         case else
@@ -171,7 +176,7 @@ function keyin(byref allowed as string="" , blocked as short=0)as string
                 return ""
             endif
             
-            if key=key_logbook then
+            if key=key_logbook and gamerunning=1 then 'RVIP: no logbook/autopilot during new-game setup (A_STAR overflow, ASan)
                 logbook()
                 return ""
             endif
@@ -777,3 +782,19 @@ function rv_itemmenu(i as short, num as short, mode as short) as string
     endif
     return k 'runs as if typed: get_item / findbest return rv_preitem
 end function
+
+'RVIP: the game's own ASCII option (configflag(con_tiles), config.txt tiles:),
+'switched from the web page. Sets up the screen as a restart with the new
+'config would (load_config + load_fonts in main.bas), then the caller redraws.
+sub rv_toggletiles()
+    configflag(con_tiles)=1-configflag(con_tiles)
+    if configflag(con_tiles)=0 then
+        _mwx=gt_mwx
+    else
+        _mwx=60
+    endif
+    save_config(configflag(con_tiles))
+    load_fonts
+    if configflag(con_tiles)=0 and gt_no(1)=0 then load_tiles 'ASCII start with sysmaptiles off: never loaded
+    cls
+end sub

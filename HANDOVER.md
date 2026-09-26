@@ -264,3 +264,71 @@ blit list: BASIC draws with `put ...,gtiles(gt_no(n))` / `dtile` (ProsIO.bas `dt
 ProsIO.bas `display_awayteam`, `display_planetmap`) into the fbgfx page;
 `port/webgfx.c` `rv_frame` converts the 16-bit framebuffer to RGBA, JS only
 blits it.
+
+### Stage 4 (tiles): done
+
+- **Tile set**: the game's own, by David Gervais and Deon (sprites 24×24, BMP
+  sheets in `graphics/*.bmp`, from the author's R197 release `1b928c0`; used
+  with the author's permission, `README.txt`). One set only, no fallback.
+  Loader: `load_tiles` (`fileIO.bas`) into `gtiles()` via `gt_no(tile no)`;
+  drawn by the BASIC blits (`put …gtiles(gt_no(n))`, `dtile`,
+  `display_awayteam`, `display_planetmap` in `ProsIO.bas`). No pref files.
+- **Coverage**: `sh port/tilecov.sh` (scratch copy whose `load_tiles` dumps the
+  loaded numbers, native build) → **285 of 285** tile numbers the source
+  assigns (literal `ti_no=<n>` plus the monster fallback `g+1001`) have a
+  sprite, **100 %**; 1080 loaded. The stage-1 "missing tile 0" was a false
+  hit: `monster.bas:489` is the comparison `if enemy.ti_no=0 then
+  enemy.ti_no=g+1001` (1002-1013, all loaded).
+- **Scale**: the game blits sprites 1:1 at 24 px cells into its own
+  framebuffer; the page `putImageData`s it 1:1 and scales the canvas by whole
+  numbers (1-4, Zoom −/+) with `image-rendering: pixelated`: nearest-neighbour
+  only. Checked by pixel (4× crops): space (ship, stations, sun, gas cloud,
+  system bar), station interior (walls, bar, captain), planet surface (ice,
+  rock, ship, captain in spacesuit). Hero = the game's captain sprite
+  (`captainsprite` config, red/orange default), looks right.
+- **Tiles/Text toggle**: page button `#btn-tiles` (`web/prospector.js`) sends
+  `rv_key(120,0)`; `keyin` (`kbinput.bas`) at a main prompt (space / planet /
+  station) calls `rv_toggletiles`: flips `configflag(con_tiles)` (the game's own
+  ASCII option), sets `_mwx`, `save_config` (config.txt `tiles:` in IndexedDB,
+  so it survives reload), `load_fonts` (new `SCREENRES`, as a restart would),
+  loads tiles if they never were, `cls`, then `keyin` returns "" and the game
+  redraws. Ignored inside menus. The label reads `tiles:` from config.txt.
+  Tested: space, station, planet, text→tiles, tiles→text, reload keeps Text.
+  Native pool key `` ` `` = the button.
+- **Native ASan** (`port/native-test.sh`, pool with `` ` `` = toggle):
+  seed 7 × 3000 keys ran 15 min (timeout) without ASan errors. Seed 3 found
+  `A_STAR` heap overflow: `L` logbook/autopilot reachable through nested
+  `keyin` during new-game setup (captain menus), before the space map exists →
+  fixed: `key_logbook` only when `gamerunning=1` (kbinput.bas). Rerun of seed 3
+  then hit an upstream `gen_traderoutes` (space.bas) heap overflow in
+  `make_spacemap` (random keys likely used "Change mapsize" in the talents
+  menu; not fixed, see Open). Web rebuilt after the fix.
+- **Open problems**: a toggle costs one game tick in space (as the game's own
+  global keys that return ""). Old messages in the log keep the wrap width of
+  the mode they were printed in (text mode after tiles shows long lines over the
+  sidebar until they scroll off). Monsters/items on a surface not seen in the
+  test (none met; same `dtile` path). Space `#` finds nothing until a system is
+  in sensor range; station `#` walks toward the vacuum airlocks (asks "walk out
+  into the vacuum?"; stage 2 explore should not target airlock exits).
+  Random keys (seed 11, 3000) can nest `keyin`→`logbook`→`keyin`… (global keys
+  inside nested prompts) until the 8 MB native stack overflows (upstream
+  recursion; Enter/L/E in the pool). `gen_traderoutes` writes past `map()` /
+  `wpl()` after the talents menu's "Change mapsize" (native seed 3; upstream,
+  new-game generation): fix before stage 7.
+
+Next: **stage 5 (web page)**. What stage 5 needs:
+- The page is still one canvas (`web/index.html`, `web/prospector.js`, loads
+  `rvip-wm.js` but opens no windows). Split into rvip-wm.js windows (Map,
+  Messages/log, Status/sidebar, Inventory, pop-ups) fed from the BASIC side,
+  as O-Prospector/AlphaMan did: the game draws map, sidebar (`sidebar` x,
+  `_mwx`, `_fw1`, `_fh1`) and message window (`dprint`, `_textlines`) into one
+  framebuffer; either export the rectangles (C: `rv_frame` + a layout struct
+  set from BASIC after `load_fonts`) and cut them into windows, or render text
+  windows from BASIC strings. Keep the Tiles/Text button and its config line.
+- Memory: 400 MB `INITIAL_MEMORY` (static arrays, `planets(4096)` 260 MB):
+  decide on shrinking `max_maps` or keep.
+- Death/quit flow: after death the game shows summary + highscore, then exits
+  (`restart:1` = off); the page shows its "Prospector has ended" overlay.
+- `deploy.sh` from another game's (e.g. `~/Games/alphaman`), target
+  `ruzzoli.de/roguelikes/prospector/`; not deployed until stage 7.
+- Help button: the Manual `doc/Manual.pdf` (2011) / `Manual.pdf` (2014).

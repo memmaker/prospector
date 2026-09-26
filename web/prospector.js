@@ -78,6 +78,21 @@
 		e.preventDefault();
 	}
 
+	/* Tiles/Text: the game's own option (config.txt tiles:0 = tiles). The button
+	   sends scancode 120, keyin (kbinput.bas) flips configflag(con_tiles) and
+	   saves config.txt (IndexedDB), so the choice survives a reload. */
+	function tilesLabel() {
+		var on = true;
+		try { on = !/^tiles:1/m.test(Module.FS.readFile(ROOT + '/config/config.txt', { encoding: 'utf8' })); } catch (e) { }
+		var b = $('btn-tiles');
+		b.textContent = on ? 'Tiles' : 'Text'; b.classList.toggle('on', on);
+	}
+	function toggleTiles() {
+		if (!running) return;
+		Module._rv_key(120, 0);
+		wantSaveFlag = true;
+	}
+
 	/* ---------- saves: IndexedDB (IDBFS) ---------- */
 	var syncing = false, syncAgain = false, pendingCbs = [];
 	function syncFiles(cb) {
@@ -139,6 +154,7 @@
 		syncFiles(function (err) { if (!err) location.reload(); });
 	}
 	function autosave() {
+		if (running) tilesLabel();
 		if (!running || !wantSaveFlag) return;
 		var now = performance.now();
 		if (now - lastSave < 2000 && !document.hidden) return;
@@ -223,6 +239,7 @@
 		$('btn-new').onclick = newGame;
 		$('btn-zoom-in').onclick = function () { zoom(1); };
 		$('btn-zoom-out').onclick = function () { zoom(-1); };
+		$('btn-tiles').onclick = toggleTiles;
 		$('btn-restart').onclick = function () { location.reload(); };
 		document.querySelectorAll('button').forEach(function (b) {
 			b.addEventListener('mousedown', function (e) { e.preventDefault(); });

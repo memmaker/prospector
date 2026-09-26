@@ -128,7 +128,7 @@ void *fb_hGL_GetProcAddress(const char *name) { return NULL; }
 FBCALL void fb_Delay(int msecs) { native_poll(); }
 static void native_poll(void) {
   static FILE *kf; static int opened, left = -1, n;
-  static const char pool[] = "12346789123467891234678955ssssllldddiiaaeexxooppRr#<>CcTtLlWw@A?.,mzy##<<>>~~EEE \033\033\r\r\r\r";
+  static const char pool[] = "12346789123467891234678955ssssllldddiiaaeexxooppRr#<>CcTtLlWw@A?.,mzy##<<>>~~EEE`` \033\033\r\r\r\r";
   if (__fb_gfx->event_head != __fb_gfx->event_tail) return;
   if (!opened) {
     opened = 1;
@@ -150,7 +150,8 @@ static void native_poll(void) {
     rv_key(c == '\r' ? 28 : c == 27 ? 1 : 0, c);
   } else if (left-- > 0) {
     c = pool[rand() % (sizeof pool - 1)];
-    rv_key(c == '\r' ? 28 : c == 27 ? 1 : 0, c);
+    if (c == '`') rv_key(120, 0);   /* the page's Tiles/Text button */
+    else rv_key(c == '\r' ? 28 : c == 27 ? 1 : 0, c);
   } else { shot(); fprintf(stderr, "rv: keys done after %d\n", n); exit(0); }
   if (++n % 200 == 0) shot();
 }

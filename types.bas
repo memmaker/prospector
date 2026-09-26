@@ -2316,6 +2316,7 @@ Declare Function load_quest_cargo(t As Short,car As Short,dest As Short) As Shor
 
 Declare Function keyin(allowed As String ="", blocked As Short=0)As String
 Declare Function rv_cmdmenu(allowed As String, mode As Short) As String
+Declare Sub rv_toggletiles()
 Declare Function rv_itemmenu(i As Short, num As Short, mode As Short) As String
 Declare Function screenshot(a As Short) As Short
 Declare Function logbook() As Short
