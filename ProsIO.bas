@@ -478,6 +478,7 @@ function display_stars(bg as short=0) as short
     dim range as integer
     dim as single dx,dy,l,x1,y1,vis
     dim as short debug
+    rv_onmap=1 'RVIP: the main screen is drawn
     if bg<2 then
         player.osx=player.c.x-_mwx/2
         player.osy=player.c.y-10
@@ -1100,6 +1101,7 @@ function display_awayteam(showshipandteam as byte=1,osx as short=555) as short
         dim debug as byte=0
         dim as short map
         Fh1=22
+        rv_onmap=1 'RVIP: the main screen is drawn
         dim as _cords ship
         ship=player.landed
         map=player.map
@@ -2029,6 +2031,7 @@ function textbox(text as string,x as short,y as short,w as short,_
         x=x*_fw1
         y=y*_fh1
     endif
+    if op<>1 and x<sidebar then rv_onmap=0 'RVIP: a text box over the map is a pop-up (the sidebar's are not)
     maxlines=(20*_fh1-y)/_fh2
     'if len(text)<=w then addt(0)=text
     for p=0 to len(text)

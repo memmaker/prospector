@@ -6,7 +6,8 @@
  * (Module._rv_layout, set in keyin, kbinput.bas rv_webui): at a main prompt
  * the map part goes to Map and the sidebar to Status; messages and the
  * inventory come as text (rvMsg, rvInv); menus, dialogs and other full
- * screens are shown whole in a pop-up over the windows.
+ * screens are shown whole in a pop-up over the windows; one-line questions
+ * over the main screen (the game's ask flag) go in a prompt line over Map.
  * Game data is preloaded read-only (/pack); the player's files live in
  * IndexedDB (IDBFS mounts /prospector/savegames, config, bones, summary).
  * Loaded before prospector-core.js.
@@ -36,7 +37,7 @@
 	function hexcol(rgb) { return '#' + ('00000' + (rgb & 0xffffff).toString(16)).slice(-6); }
 
 	/* ---------- drawing ---------- */
-	function lay() { var p = Module._rv_layout() >> 2, H = Module.HEAP32; return { mode: H[p], mw: H[p + 1], mh: H[p + 2], my: H[p + 3], side: H[p + 4], serial: H[p + 5], hx: H[p + 6], hy: H[p + 7] }; }
+	function lay() { var p = Module._rv_layout() >> 2, H = Module.HEAP32; return { mode: H[p], mw: H[p + 1], mh: H[p + 2], my: H[p + 3], side: H[p + 4], serial: H[p + 5], hx: H[p + 6], hy: H[p + 7], ask: H[p + 8] }; }
 	function fitScale(w, h, vw, vh) { return Math.max(1, Math.min(4, Math.floor(Math.min(vw / w, vh / h)))); }
 	/* copy part (sx, sy, w, h) of the frame into window canvas id at scale sc */
 	function blit(id, sx, sy, w, h, sc) {
@@ -58,7 +59,10 @@
 		if (l.serial !== serial) { serial = l.serial; dirty = 1; }
 		if (!dirty && !force) return;
 		if (dirty) { img.data.set(Module.HEAPU8.subarray(px, px + w * h * 4)); offCtx.putImageData(img, 0, 0); }
-		full = !(l.mode > 0 && wm && wm.shown('map') && wm.shown('stat') && wm.shown('msg') && l.side > 0 && l.side < w);
+		/* ask = a one-line question over the main screen: windows stay, the question goes over Map */
+		full = !((l.mode > 0 || l.ask) && wm && wm.shown('map') && wm.shown('stat') && wm.shown('msg') && l.side > 0 && l.side < w);
+		RvipWM.prompt.wait(!l.ask);
+		RvipWM.prompt.text(l.ask && !full ? lastMsg : '');
 		$('pop').hidden = !full;
 		if (full) {   /* menus, dialogs, title: the whole screen over the windows */
 			var g = $('game'), s = Math.min(g.clientWidth / w, g.clientHeight / h);
@@ -116,8 +120,8 @@
 	function toggleSound() { L.sound = !L.sound; soundLabel(); saveLayout(); }
 	function rvSound(p, vol) { if (L.sound && vol > 0) RVIPSound.play([latin1(p)], Math.min(1, vol / 2)); }
 	/* from the game (port/webgfx.c): messages, inventory, game end */
-	var invText = null;
-	function rvMsg(p, rgb, rep) { RvipWM.log($('msg'), { t: latin1(p), color: hexcol(rgb) }, !!rep); }
+	var invText = null, lastMsg = '';
+	function rvMsg(p, rgb, rep) { lastMsg = latin1(p); RvipWM.log($('msg'), { t: lastMsg, color: hexcol(rgb) }, !!rep); }
 	function rvInv(p) {
 		var t = latin1(p);
 		if (t === invText) return;

@@ -624,6 +624,7 @@ function menu(bg as byte,te as string, he as string="", x as short=2, y as short
         else
             dprint ""
         endif
+        rv_onmap=0 'RVIP: a menu is a pop-up, even over the map
         if player.dead=0 then 
             if blocked=0 then
                 key=keyin(,96+c)
@@ -815,7 +816,8 @@ end sub
 'RVIP: the web page's windows (port/webgfx.c, web/prospector.js). At a main
 'prompt (mode 1 space, 2 planet/station) the page shows the map, message and
 'sidebar parts of the screen in their own windows; anything else (menus,
-'dialogs, questions, title, combat) is shown whole over the map; the Map
+'dialogs, title, combat) is shown whole over the map, one-line questions
+'over the main screen (rv_onmap, types.bas) as a prompt line over the map; the Map
 'window follows the ship / away team (hx,hy) when it is smaller than the map. The
 'inventory goes as text, coloured by kind (the game's own list has one colour;
 'Angband-style colours by category, itemcat()).
@@ -832,7 +834,8 @@ sub rv_webui(rvmode as short)
         hx=(awayteam.c.x-calcosx(awayteam.c.x,planets(player.map).depth))*_fw1+_fw1\2
         hy=awayteam.c.y*_fh1+_fh1\2
     endif
-    rv_regions(rvmode,(_mwx+1)*_fw1,22*_fh1,fix((22*_fh1)/_fh2)*_fh2,sidebar,hx,hy)
+    if rvmode>0 then rv_onmap=1
+    rv_regions(rvmode,(_mwx+1)*_fw1,22*_fh1,fix((22*_fh1)/_fh2)*_fh2,sidebar,hx,hy,iif(rvmode=0 and rv_onmap<>0,1,0))
     if rvmode=0 then exit sub
     last=get_item_list(inv(),invn())
     for i=1 to last

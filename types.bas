@@ -222,12 +222,23 @@ Dim Shared walking As Short
 Dim Shared As Short rv_menumode,rv_preitem,rv_prenum 'RVIP: 1 space / 2 planet prompt (Enter menu); item preselected by the item menu
 Dim Shared As String rv_pend,rv_spend 'RVIP: key to run when a walk to stairs/ship (walking=13) or a space autopilot walk arrives
 'RVIP: web page windows and game end, port/webgfx.c (no-ops natively)
-Declare Sub rv_regions Cdecl Alias "rv_regions" (ByVal mode As Long, ByVal mw As Long, ByVal mh As Long, ByVal my As Long, ByVal side As Long, ByVal hx As Long, ByVal hy As Long)
+Declare Sub rv_regions Cdecl Alias "rv_regions" (ByVal mode As Long, ByVal mw As Long, ByVal mh As Long, ByVal my As Long, ByVal side As Long, ByVal hx As Long, ByVal hy As Long, ByVal ask As Long)
 Declare Sub rv_msg Cdecl Alias "rv_msg" (ByVal s As ZString Ptr, ByVal rgb As Long, ByVal rep As Long)
 Declare Sub rv_inv Cdecl Alias "rv_inv" (ByVal s As ZString Ptr)
 Declare Sub rv_gameover Cdecl Alias "rv_gameover" ()
 Declare Sub rv_sound Cdecl Alias "rv_sound" (ByVal n As Long, ByVal vol As Long)
 Declare Sub rv_webui(rvmode As Short)
+'RVIP: rv_onmap=1 while the main screen (map, messages, sidebar) is what is on screen:
+'set at the main prompts and by display_stars / display_awayteam, cleared by every
+'Cls, menu() and textbox() over the map. A prompt (keyin) inside a question while it is 1 is a
+'one-line question over the map (rv_webui tells the page).
+Dim Shared rv_onmap As Short
+Sub rv_cls()
+    rv_onmap=0
+    Cls
+End Sub
+#Undef Cls
+#Define Cls rv_cls
 Dim Shared itemcat(11) As String
 Dim Shared shopname(4) As String
 

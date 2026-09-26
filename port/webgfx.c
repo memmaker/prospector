@@ -102,14 +102,16 @@ EMSCRIPTEN_KEEPALIVE void *rv_frame(int page) {
 /* Windows of the web page (web/prospector.js). The game says which part of
    its screen is what (rv_regions from keyin, kbinput.bas): mode > 0 = at a
    main prompt, map / messages / sidebar are split into windows; mode 0 = a
-   menu, dialog or other full screen, shown whole over the map. Messages and
+   menu, dialog or other full screen, shown whole over the map, unless ask = 1
+   (a one-line question over the main screen: windows stay, prompt over Map). Messages and
    the inventory come as text (Latin-1) with the game's colours. */
-static int layout[8];   /* mode, map w, map h, messages y, sidebar x, serial, ship x, y (px on the map part) */
+static int layout[9];   /* mode, map w, map h, messages y, sidebar x, serial, ship x, y (px on the map
+                           part), ask (1 = one-line question over the main screen: prompt line over Map) */
 EMSCRIPTEN_KEEPALIVE int *rv_layout(void) { return layout; }
-void rv_regions(int mode, int mw, int mh, int my, int side, int hx, int hy) {
+void rv_regions(int mode, int mw, int mh, int my, int side, int hx, int hy, int ask) {
   layout[6] = hx; layout[7] = hy;   /* the page centres the Map window on it */
-  if (layout[0] == mode && layout[1] == mw && layout[2] == mh && layout[3] == my && layout[4] == side) return;
-  layout[0] = mode; layout[1] = mw; layout[2] = mh; layout[3] = my; layout[4] = side; layout[5]++;
+  if (layout[0] == mode && layout[1] == mw && layout[2] == mh && layout[3] == my && layout[4] == side && layout[8] == ask) return;
+  layout[0] = mode; layout[1] = mw; layout[2] = mh; layout[3] = my; layout[4] = side; layout[8] = ask; layout[5]++;
 }
 #ifdef __EMSCRIPTEN__
 /* rgb = FB colour (&hAARRGGBB); rep = 1: replaces the last line ("(x2)") */
