@@ -193,3 +193,74 @@ Next: **stage 3 (Enter menu + inventory)**. What stage 3 needs:
   `fileIO.bas` (`key_* = ` lines).
 - Manual command lists: `Manual.pdf` (root, 2014) lines ~500-560 of its text
   ("> - use stairs/tunnel ..."), `doc/Manual.pdf` ~l.600-660 (markitdown).
+
+### Stage 3 (Enter menu + inventory): done
+
+- **Files**: `kbinput.bas` (all new code at the end: `rv_cmdmenu`,
+  `rv_itemmenu`, helpers `rv_cmdadd`, `rv_cmdkey`, `rv_kname`; hooks in
+  `keyin`), `items.bas` (`get_item` / `findbest` take a preselected item),
+  `main.bas` (two lines: `rv_menumode=1/2` before the space and planet
+  `keyin(allowed,walking)`), `types.bas` (shared `rv_menumode`, `rv_preitem`,
+  `rv_prenum`; declares; `menu()` got an optional last param `pick`),
+  `ProsIO.bas` + `texts.bas` (3d), `port/webgfx.c` (native key pool has
+  `E` and more Enter).
+- **Enter menu**: the main loops set `rv_menumode` (1 space, 2 planet
+  surface/ship/station interior) right before their `keyin`; `keyin` copies it
+  and clears it (nested `keyin` calls in menus see 0). Enter at that prompt →
+  `rv_cmdmenu(allowed,mode)`: the game's own `menu()` with groups (Move and
+  explore / Actions / Ship and crew / Game), then the group's commands with
+  their keys. Entries come from a fixed table filtered by the prompt's
+  `allowed` string (so the menu shows what the prompt accepts), plus the global
+  keys `keyin` handles itself (@ A E T L Q ^s ^a m ? = I P ^h). Includes
+  `#`/`~`, `<`, `>`. The chosen key is put back into `keyin` as if typed
+  (global handlers, `allowed` filter, then the caller's `If Key=` chains).
+  Cursor + Enter, or the letter (`menu(...,pick=1)`: letter chooses at once);
+  Esc in a group goes back to the groups, Esc there closes (returns "").
+- **Item actions**: `E` (`key_equipment`, handled in `keyin`) uses the game's
+  own cursor list `get_item(,,num)`; Enter on an item → `rv_itemmenu(i,num,mode)`
+  (the game's `menu()`), actions by item type and place: planet/station:
+  `h` use (medpack, ty 11), `g` throw (grenade, ty 7), `D` drop; space: `D`
+  launch (probe, ty 55); weapons/armor (ty 2-4): assign to a crew member (opens
+  the roster `showteam`, its `s set item` takes the item); always `x` examine
+  (`ldesc`). Run by **key queue**: the menu sets `rv_preitem`/`rv_prenum` and
+  returns the key from `keyin`, so the game's own handler runs;
+  `get_item` returns `rv_preitem` (if the type fits) and `findbest` does too
+  for types 7/11 only (display code calls findbest for other types). Cleared
+  at the next main prompt. Outside the main prompts (`mode` 0) only examine and
+  assign.
+- **3d**: the 8 `con_sound=2` alert waits (`keyin(" "&Enter&Esc)` after "Fuel
+  low", oxygen, jetpack… in ProsIO.bas/texts.bas) are removed in all builds;
+  the message stays in the log (`m`).
+- **Tested** (web build, own tab, frame POSTed to shotsrv): space Enter menu
+  (groups, letter pick `b` → `i` dock), station interior Enter menu (cursor
+  pick Actions), planet (letter/ cursor pick `#` autoexplore, landed via menu
+  `l`); item menus: medpack use (game's "use your medpack?" with the item
+  preselected), drop binoculars in the station and anaesthetics on a planet
+  (no item prompt), pick up via the Enter menu, probe launch in space
+  ("Which direction?" → "Probe launched"), assign armor via roster `s`
+  (preferred `*protective suit`), examine. Native ASan (`E`/Enter in the pool): seed 7 × 3000 random keys found
+  the `credits()` overflow below, clean after the fix; seed 11 ran 15 min
+  (timeout) without ASan errors.
+- **Also fixed**: `credits()` (credits.bas) `z(12)` overflowed with 64-bit
+  `Integer` (19 digits) at game end natively → `z(20)`.
+- **Open problems**: grenade action not seen in a game (no grenades in the
+  test ships; same path as medpack). The planet menus redraw with the game's
+  `bg_awayteamtxt` (sidebar only, map hidden while a menu is open), as the
+  game's own menus do. Item keys (`h`, `D`) are shown in the item menu but the
+  menu reacts to its letters, not those keys. The list does not reopen after an
+  action. `dprint`'s own pager (↓ + key when one message is longer than the
+  message window) still waits. The sidebar sometimes shows `f attack` when
+  `allowed` lacks `f` (fleet index 0; game bug); the menu follows `allowed`.
+  Space `C\r` rename key can never be typed (upstream), not in the menu.
+
+Next: **stage 4 (tiles)**. Stage 1 decided: the game's own Gervais/Deon set
+(99.6 % coverage: 276 of 277 `ti_no=` literals; the missing one is `ti_no=0`,
+`monster.bas:489`), tiles on by default (`config.txt` `tiles:0`), ASCII is the
+game's own option. Stage 4 still has to check: nearest-neighbour scaling at
+cell size (page `web/prospector.js` scales the canvas by CSS with
+`image-rendering: pixelated`; check the sprites at 24 px cells), a tile/text toggle in the page (the game's
+`configflag(con_tiles)`), the missing tile 0, the hero/away-team tile. The
+blit list: BASIC draws with `put ...,gtiles(gt_no(n))` / `dtile` (ProsIO.bas `dtile`,
+ProsIO.bas `display_awayteam`, `display_planetmap`) into the fbgfx page;
+`port/webgfx.c` `rv_frame` converts the 16-bit framebuffer to RGBA, JS only
+blits it.

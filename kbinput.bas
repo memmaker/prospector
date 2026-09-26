@@ -8,6 +8,9 @@ function keyin(byref allowed as string="" , blocked as short=0)as string
     static as ZString*4 lastkey
     dim as short a,b,i,tog1,tog2,tog3,tog4,ctr,f,it,debug
     dim as string control
+    dim as short rvmode=rv_menumode 'RVIP: nested keyin calls (menus) get 0
+    rv_menumode=0
+    if rvmode>0 then rv_preitem=0
     if walking<>0 then sleep 50
     flip
     if _debug>0 and allowed<>"" then allowed &="_"
@@ -80,6 +83,10 @@ function keyin(byref allowed as string="" , blocked as short=0)as string
         if key<>"" then 
             walking=0 
             autofire_target.m=0
+        endif
+        if key=key__enter and rvmode>0 then 'RVIP: command menu; the chosen key runs as if typed
+            key=rv_cmdmenu(allowed,rvmode)
+            if key="" then return ""
         endif
         
         if blocked>=97 then
@@ -169,11 +176,11 @@ function keyin(byref allowed as string="" , blocked as short=0)as string
                 return ""
             endif
 
-            if key=key_equipment then
-                a=get_item()
-                if a>0 then dprint item(a).ldesc
-                key=keyin()
-                return ""
+            if key=key_equipment then 'RVIP: item list -> menu of the item's actions
+                a=get_item(,,b)
+                key=""
+                if a>0 then key=rv_itemmenu(a,b,rvmode)
+                if key="" then return ""
             endif
             
             if key=key_standing then
@@ -441,7 +448,7 @@ function askyn(q as string,col as short=11,sure as short=0) as short
     return a
 end function
 
-function menu(bg as byte,te as string, he as string="", x as short=2, y as short=2, blocked as short=0, markesc as short=0,st as short=-1) as short
+function menu(bg as byte,te as string, he as string="", x as short=2, y as short=2, blocked as short=0, markesc as short=0,st as short=-1,pick as short=0) as short
     ' 0= headline 1=first entry
     dim as short blen
     dim as string text,help
@@ -624,7 +631,7 @@ function menu(bg as byte,te as string, he as string="", x as short=2, y as short
         if loca>c then loca=1
         if key=key__enter then e=loca
         for a=0 to c
-            if key=lcase(shrt(a)) then loca=a
+            if key=lcase(shrt(a)) then loca=a: e=iif(pick<>0 and a>0,a,e) 'RVIP: letter chooses
         next
         if key=key__esc or player.dead<>0 then e=c
     loop until e>0 
@@ -638,4 +645,135 @@ function menu(bg as byte,te as string, he as string="", x as short=2, y as short
     cls
     screenset 1,1
     return e
+end function
+
+'RVIP stage 3: Enter menu and item menus. The game's own menu() draws them; the chosen key runs through the game's own handlers.
+function rv_kname(k as string) as string
+    if left(k,2)="\C" then return "^"&mid(k,3)
+    return k
+end function
+
+function rv_cmdadd(byref mt as string, byref mk as string, k as string, label as string, allowed as string="") as short
+    'adds one entry (key shown in front) when k is allowed at this prompt; allowed="" = always
+    if k="" or (allowed<>"" and instr(allowed,k)=0) then return 0
+    mt &= "/" & rv_kname(k) & space(4-len(rv_kname(k))) & label
+    mk &= k & chr(1)
+    return 0
+end function
+
+function rv_cmdkey(mk as string, i as short) as string
+    'i-th key (1-based) of a chr(1)-separated list
+    dim as short a,p=1,q
+    for a=1 to i
+        q=instr(p,mk,chr(1))
+        if q=0 then return ""
+        if a=i then return mid(mk,p,q-p)
+        p=q+1
+    next
+    return ""
+end function
+
+function rv_cmdmenu(allowed as string, mode as short) as string
+    'mode 1 = space (explore_space), 2 = planet surface / ship or station interior (explore_planet)
+    dim as string mt(4),mk(4)
+    dim as short g,a,bg
+    mt(1)="Move and explore": mt(2)="Actions": mt(3)="Ship and crew": mt(4)="Game"
+    rv_cmdadd(mt(1),mk(1),key_walk,"walk in a direction",allowed)
+    rv_cmdadd(mt(1),mk(1),key_wait,"wait",allowed)
+    if mode=1 then
+        rv_cmdadd(mt(1),mk(1),key_autoexplore,"explore: fly to an unvisited system (also ~)",allowed)
+        rv_cmdadd(mt(1),mk(1),">","fly to the nearest planet or station and land or dock",allowed)
+        rv_cmdadd(mt(1),mk(1),"<","about < and > in space",allowed)
+        rv_cmdadd(mt(1),mk(1),key_la,"land on a planet or enter a wormhole",allowed)
+        rv_cmdadd(mt(1),mk(1),key_tala,"land at a chosen spot",allowed)
+        rv_cmdadd(mt(1),mk(1),key_dock,"dock at a station",allowed)
+        rv_cmdadd(mt(2),mk(2),key_sc,"scan planets",allowed)
+        rv_cmdadd(mt(2),mk(2),key_fi,"attack",allowed)
+        rv_cmdadd(mt(2),mk(2),key_tow,"tow a ship"&iif(artflag(25)>0," or wormhole generator",""),allowed)
+        rv_cmdadd(mt(2),mk(2),key_drop,"launch a probe",allowed)
+        rv_cmdadd(mt(2),mk(2),key_ra,"radio",allowed)
+        rv_cmdadd(mt(2),mk(2),key_comment,"comment on the map",allowed)
+        rv_cmdadd(mt(2),mk(2),key_optequip,"armor choice for the away team",allowed)
+    else
+        rv_cmdadd(mt(1),mk(1),key_autoexplore,"autoexplore (also ~)",allowed)
+        rv_cmdadd(mt(1),mk(1),"<","go up: stairs or portal, else walk to the ship and launch",allowed)
+        rv_cmdadd(mt(1),mk(1),">","go down: nearest known stairs, tunnel or portal",allowed)
+        rv_cmdadd(mt(1),mk(1),key_la,"launch (at the ship)",allowed)
+        if awayteam.movetype>=2 then rv_cmdadd(mt(1),mk(1),key_ju,"jetpack jump",allowed)
+        if awayteam.teleportrange>0 then rv_cmdadd(mt(1),mk(1),key_te,"teleport",allowed)
+        rv_cmdadd(mt(2),mk(2),key_ex,"examine",allowed)
+        rv_cmdadd(mt(2),mk(2),key_fi,"fire",allowed)
+        rv_cmdadd(mt(2),mk(2),key_autofire,"autofire",allowed)
+        rv_cmdadd(mt(2),mk(2),key_gr,"throw grenade",allowed)
+        rv_cmdadd(mt(2),mk(2),key_he,"use medpack",allowed)
+        rv_cmdadd(mt(2),mk(2),key_pickup,"pick up",allowed)
+        rv_cmdadd(mt(2),mk(2),key_drop,"drop",allowed)
+        rv_cmdadd(mt(2),mk(2),key_inspect,"inspect",allowed)
+        rv_cmdadd(mt(2),mk(2),key_co,"chat",allowed)
+        rv_cmdadd(mt(2),mk(2),key_of,"offer",allowed)
+        rv_cmdadd(mt(2),mk(2),key_oxy,"open or close helmet",allowed)
+        rv_cmdadd(mt(2),mk(2),key_close,"close door",allowed)
+        rv_cmdadd(mt(2),mk(2),key_report,"bioreport",allowed)
+        rv_cmdadd(mt(2),mk(2),key_ra,"radio",allowed)
+    endif
+    rv_cmdadd(mt(3),mk(3),key_shipstatus,"ship status")
+    rv_cmdadd(mt(3),mk(3),key_awayteam,"crew roster")
+    rv_cmdadd(mt(3),mk(3),key_equipment,"equipment and inventory")
+    rv_cmdadd(mt(3),mk(3),key_tactics,"tactics")
+    rv_cmdadd(mt(3),mk(3),key_logbook,"logbook")
+    rv_cmdadd(mt(3),mk(3),key_quest,"missions")
+    rv_cmdadd(mt(3),mk(3),key_standing,"faction standing")
+    rv_cmdadd(mt(3),mk(3),key_accounting,"income and expenses")
+    rv_cmdadd(mt(3),mk(3),key_messages,"message log")
+    rv_cmdadd(mt(4),mk(4),key_manual,"help")
+    rv_cmdadd(mt(4),mk(4),key_configuration,"configuration")
+    rv_cmdadd(mt(4),mk(4),key_autoinspect,"toggle autoinspect")
+    rv_cmdadd(mt(4),mk(4),key_autopickup,"toggle autopickup")
+    rv_cmdadd(mt(4),mk(4),key_togglehpdisplay,"toggle HP display")
+    rv_cmdadd(mt(4),mk(4),key_save,"save and quit",allowed)
+    rv_cmdadd(mt(4),mk(4),key_quit,"quit without saving",allowed)
+    if mode=1 then bg=bg_shipstarstxt else bg=bg_awayteamtxt
+    do
+        g=menu(bg,"Commands/Move and explore/Actions/Ship and crew/Game","",2,2,0,1,,1)
+        if g<1 then return ""
+        a=menu(bg,mt(g),"",2,2,0,1,,1)
+        if a>=1 then return rv_cmdkey(mk(g),a)
+    loop 'Esc in a group goes back to the groups
+end function
+
+function rv_itemmenu(i as short, num as short, mode as short) as string
+    'actions of item i (num = stack size from get_item); mode as rv_cmdmenu, 0 = elsewhere (examine / assign only)
+    dim as string mt,mk,k
+    dim as short a,bg
+    mt=item(i).desig
+    if mode=2 then
+        if item(i).ty=11 then rv_cmdadd(mt,mk,key_he,"use")
+        if item(i).ty=7 then rv_cmdadd(mt,mk,key_gr,"throw")
+        rv_cmdadd(mt,mk,key_drop,"drop")
+    endif
+    if mode=1 and item(i).ty=55 then rv_cmdadd(mt,mk,key_drop,"launch")
+    if item(i).ty>=2 and item(i).ty<=4 then rv_cmdadd(mt,mk,key_awayteam,"assign to a crew member (then s)")
+    rv_cmdadd(mt,mk,key_ex,"examine")
+    select case mode
+    case 1: bg=bg_shipstarstxt
+    case 2: bg=bg_awayteamtxt
+    case else: bg=bg_noflip
+    end select
+    a=menu(bg,mt,"",2,2,0,1,,1)
+    if a<1 then return ""
+    k=rv_cmdkey(mk,a)
+    rv_preitem=i
+    rv_prenum=num
+    if k=key_awayteam then 'the roster's "s set item" takes the preselected item
+        if location=lc_onship then showteam(0) else showteam(1)
+        rv_preitem=0
+        return ""
+    endif
+    if k=key_ex then
+        rv_preitem=0
+        dprint item(i).ldesc
+        no_key=keyin()
+        return ""
+    endif
+    return k 'runs as if typed: get_item / findbest return rv_preitem
 end function

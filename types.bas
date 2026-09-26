@@ -219,6 +219,7 @@ Dim Shared gamerunning As Byte
 Dim Shared uid As UInteger
 Dim Shared ranoutoffuel As Short
 Dim Shared walking As Short
+Dim Shared As Short rv_menumode,rv_preitem,rv_prenum 'RVIP: 1 space / 2 planet prompt (Enter menu); item preselected by the item menu
 Dim Shared As String rv_pend,rv_spend 'RVIP: key to run when a walk to stairs/ship (walking=13) or a space autopilot walk arrives
 Dim Shared itemcat(11) As String
 Dim Shared shopname(4) As String
@@ -2216,7 +2217,7 @@ Declare Function dprint(text As String, col As Short=11) As Short
 Declare Function scrollup(b As Short) As Short
 Declare Function blink(ByVal p As _cords, osx As Short) As Short
 Declare Function Cursor(target As _cords,map As Short, osx As Short,osy As Short=0,radius As Short=0) As String
-Declare Function Menu(bg As Byte,text As String,help As String="", x As Short=2, y As Short=2,blocked As Short=0,markesc As Short=0,st As Short=-1) As Short
+Declare Function Menu(bg As Byte,text As String,help As String="", x As Short=2, y As Short=2,blocked As Short=0,markesc As Short=0,st As Short=-1,pick As Short=0) As Short
 Declare Function move_ship(Key As String) As _ship
 Declare Function total_bunks() As Short
 Declare Function getplanet(sys As Short, forcebar As Byte=0) As Short
@@ -2314,6 +2315,8 @@ Declare Function com_targetlist(defender As _ship, attacker() As _ship, mines_p(
 Declare Function load_quest_cargo(t As Short,car As Short,dest As Short) As Short
 
 Declare Function keyin(allowed As String ="", blocked As Short=0)As String
+Declare Function rv_cmdmenu(allowed As String, mode As Short) As String
+Declare Function rv_itemmenu(i As Short, num As Short, mode As Short) As String
 Declare Function screenshot(a As Short) As Short
 Declare Function logbook() As Short
 Declare Function auto_pilot(start As _cords, ende As _cords, diff As Short) As Short

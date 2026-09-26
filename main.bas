@@ -1214,7 +1214,7 @@ Function explore_space() As Short
             Flip
             explore_space_messages
             'screenset 1,1
-            if player.dead=0 then Key=keyin(allowed,walking)
+            if player.dead=0 then rv_menumode=1: Key=keyin(allowed,walking) 'RVIP: Enter = command menu
             
             player=move_ship(Key)
             'RVIP: explore / > in space; land or dock when a > walk arrives
@@ -2307,7 +2307,7 @@ EndIf
             comstr.nextpage
             Flip
             
-            If nextmap.m=0 Then Key=keyin(allowed,walking)
+            If nextmap.m=0 Then rv_menumode=2: Key=keyin(allowed,walking) 'RVIP: Enter = command menu
             If Key="~" Then Key=key_autoexplore 'RVIP alias
             if _debug=2704 then print #logfile, "&"&key
             If Key="" Then

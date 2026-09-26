@@ -1051,7 +1051,7 @@ function explore_space_messages() as short
                 fbs_Play_Wave(sound(2))
                 #endif
             endif
-            if configflag(con_sound)=2 then no_key=keyin(" "&key__enter &key__esc)
+            'RVIP auto_more: the con_sound=2 alert no longer waits for Space/Enter
         endif
         set__color( 14,0)
 
@@ -1069,7 +1069,7 @@ function explore_space_messages() as short
                 fbs_Play_Wave(sound(2))
                 #endif
             endif
-            if configflag(con_sound)=2 then no_key=keyin(" "&key__enter &key__esc)
+            'RVIP auto_more: the con_sound=2 alert no longer waits for Space/Enter
 
         endif
         set__color( 12,0)

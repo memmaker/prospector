@@ -44,7 +44,7 @@ Function display_time(t As UInteger,form As Byte=0) As String
 End Function
 
 Function credits(cr As Integer) As String
-    Dim As String t,r,z(12)
+    Dim As String t,r,z(20) 'RVIP: 64-bit Integer has up to 19 digits (was z(12): ASan overflow natively)
     Dim As Single fra,tenmillion
     Dim  As Integer b=1000000
     Dim As Byte c,l,i

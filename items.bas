@@ -3987,6 +3987,14 @@ function get_item(ty as short=0,ty2 as short=0,byref num as short=0,noequ as sho
     dim as short invn(1024)
     dim as string key,helptext
     debug=1
+    if rv_preitem>0 then 'RVIP: item chosen in the item menu
+        i=rv_preitem
+        rv_preitem=0
+        if (ty=0 and ty2=0) or item(i).ty=ty or item(i).ty=ty2 then
+            num=rv_prenum
+            return i
+        endif
+    endif
     i=1
     if debug=1 and _debug=1 then dprint "Getting itemlist:ty:"&ty &"ty2"&ty2
     last=get_item_list(inv(),invn(),,,,,noequ)
@@ -4398,6 +4406,11 @@ end function
 function findbest(t as short,p as short=0, m as short=0,id as short=0) as short
     dim as single a,b,r,v
     r=-1
+    if rv_preitem>0 andalso p=-1 andalso (t=7 or t=11) andalso item(rv_preitem).ty=t then 'RVIP: grenade/medpack chosen in the item menu (other types: display code calls findbest too)
+        r=rv_preitem
+        rv_preitem=0
+        return r
+    endif
     if awayteam.optoxy=1 and t=3 then b=999
     for a=1 to lastitem
         if p<>0 then

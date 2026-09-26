@@ -128,7 +128,7 @@ void *fb_hGL_GetProcAddress(const char *name) { return NULL; }
 FBCALL void fb_Delay(int msecs) { native_poll(); }
 static void native_poll(void) {
   static FILE *kf; static int opened, left = -1, n;
-  static const char pool[] = "12346789123467891234678955ssssllldddiiaaeexxooppRr#<>CcTtLlWw@A?.,mzy##<<>>~~ \033\033\r\r";
+  static const char pool[] = "12346789123467891234678955ssssllldddiiaaeexxooppRr#<>CcTtLlWw@A?.,mzy##<<>>~~EEE \033\033\r\r\r\r";
   if (__fb_gfx->event_head != __fb_gfx->event_tail) return;
   if (!opened) {
     opened = 1;

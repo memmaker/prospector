@@ -596,7 +596,7 @@ function alerts() as short
             endif
         next
         walking=0
-        if configflag(con_sound)=2 then no_key=keyin(" "&key__enter &key__esc)
+        'RVIP auto_more: the con_sound=2 alert no longer waits for Space/Enter
     endif
     if int(awayteam.oxygen<awayteam.oxymax*.25) and wg=1 and awayteam.helmet=1 and awayteam.oxygen>0 then
         dprint ("Oxygen low.",14)
@@ -614,7 +614,7 @@ function alerts() as short
             endif
         next
         walking=0
-        if configflag(con_sound)=2 then no_key=keyin(" "&key__enter &key__esc)
+        'RVIP auto_more: the con_sound=2 alert no longer waits for Space/Enter
     endif
     if int(awayteam.oxygen<awayteam.oxymax*.125) and wg=2 and awayteam.helmet=1 and awayteam.oxygen>0 then
         dprint ("Switching to oxygen reserve!",12)
@@ -632,7 +632,7 @@ function alerts() as short
             endif
         next
         walking=0
-        if configflag(con_sound)=2 then no_key=keyin(" "&key__enter &key__esc)
+        'RVIP auto_more: the con_sound=2 alert no longer waits for Space/Enter
     endif
     if awayteam.jpfuel<awayteam.jpfuelmax and awayteam.jpfuel>0 then
         if awayteam.jpfuel/awayteam.jpfuelmax<.5 and wj=0 then
@@ -647,7 +647,7 @@ function alerts() as short
                     fbs_Play_Wave(sound(1))
                     sleep 350
                     #endif
-                    if configflag(con_sound)=2 then no_key=keyin(" "&key__enter &key__esc)
+                    'RVIP auto_more: the con_sound=2 alert no longer waits for Space/Enter
                 endif
             next
             walking=0
@@ -665,7 +665,7 @@ function alerts() as short
                     fbs_Play_Wave(sound(1))
                     sleep 350
                     #endif
-                    if configflag(con_sound)=2 then no_key=keyin(" "&key__enter &key__esc)
+                    'RVIP auto_more: the con_sound=2 alert no longer waits for Space/Enter
                 endif
             next
             walking=0
@@ -684,7 +684,7 @@ function alerts() as short
                     fbs_Play_Wave(sound(1))
                     sleep 350
                     #endif
-                    if configflag(con_sound)=2 then no_key=keyin(" "&key__enter &key__esc)
+                    'RVIP auto_more: the con_sound=2 alert no longer waits for Space/Enter
                 endif
             next
             dprint ("Switching to jetpack fuel reserve",12)
