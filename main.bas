@@ -58,7 +58,9 @@ Draw String(ds_x,ds_y),ds_text,,ds_font,custom,@ds_col
 #if _debug>0
 #include once "windows.bi"
 #endif
+#ifndef __FB_JS__ 'port: wasm has no computed goto (ON ERROR uses a label address)
 On Error Goto errormessage
+#endif
 
 Screenres 640,320,32
 Cls
@@ -86,7 +88,7 @@ If Not fileexists("config/shipregister.txt") Then
     Print #f,"0"
     Print #f,""
     a=Menu(bg_randompic,"Autonaming:/Standard/Babylon 5 shipnames/Star trek shipnames")
-    if a=2 Then Print #f,"data/b5shipnames.txt"
+    if a=2 Then Print #f,"data/B5shipnames.txt"
     if a=3 then print #f,"data/startreknames.txt"
     Close #f
     chdir("..")

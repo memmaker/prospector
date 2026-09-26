@@ -702,7 +702,7 @@ End Function
 Function cardobj.CRank (cid As cardid) As Integer
    Dim ret As Integer = 0
    
-   Select Case As Const cid
+   Select Case cid
       Case cClubAce, cDiamAce, cHearAce, cSpadAce
          ret = 1
       Case cClubTwo, cDiamTwo, cHearTwo, cSpadTwo

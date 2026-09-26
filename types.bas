@@ -8,7 +8,7 @@ Using cards
 Randomize Timer
 
 #Include "version.bas"
-dim shared as string*5 __lastsavegamechange__="R 197" 'Do not forget to change this when savegames are changed! 
+dim shared as ZString*6 __lastsavegamechange__="R 197" 'Do not forget to change this when savegames are changed! 
 
 Const c_red=12
 Const c_gre=10
@@ -142,78 +142,78 @@ Dim Shared As Byte wage=10
 
 Dim Shared As Byte com_cheat=0
 Dim Shared As Short sidebar
-Dim Shared As String*3 key_testspacecombat="\Cy"
-Dim Shared As String*3 key_manual="?"
-Dim Shared As String*3 key_messages="m"
-Dim Shared As String*3 key_configuration="="
-Dim Shared As String*3 key_autoinspect="I"
-Dim Shared As String*3 key_autopickup="P"
-Dim Shared As String*3 key_shipstatus="@"
-Dim Shared As String*3 key_equipment="E"
-Dim Shared As String*3 key_tactics="T"
-Dim Shared As String*3 key_awayteam="A"
-Dim Shared As String*3 key_quest="Q"
-Dim Shared As String*3 key_tow="t"
-Dim Shared As String*3 key_autoexplore="#"
-Dim Shared As String*3 key_standing="\Cs"
+Dim Shared As ZString*4 key_testspacecombat="\Cy"
+Dim Shared As ZString*4 key_manual="?"
+Dim Shared As ZString*4 key_messages="m"
+Dim Shared As ZString*4 key_configuration="="
+Dim Shared As ZString*4 key_autoinspect="I"
+Dim Shared As ZString*4 key_autopickup="P"
+Dim Shared As ZString*4 key_shipstatus="@"
+Dim Shared As ZString*4 key_equipment="E"
+Dim Shared As ZString*4 key_tactics="T"
+Dim Shared As ZString*4 key_awayteam="A"
+Dim Shared As ZString*4 key_quest="Q"
+Dim Shared As ZString*4 key_tow="t"
+Dim Shared As ZString*4 key_autoexplore="#"
+Dim Shared As ZString*4 key_standing="\Cs"
 
-Dim Shared As String*3 key_la="l"
-Dim Shared As String*3 key_tala="\Cl"
-Dim Shared As String*3 key_sc="s"
-Dim Shared As String*3 key_save="S"
-Dim Shared As String*3 key_quit="q"
-'dim shared as string*3 key_D="D"
-'dim shared as string*3 key_G="G"
-Dim Shared As String*3 key_report="R"
-Dim Shared As String*3 key_rename="C\r"
-Dim Shared As String*3 key_dock="d"
-Dim Shared As String*3 key_comment="c"
-Dim Shared As String*3 key_dropshield="s"
-Dim Shared As String*3 key_inspect="i"
-Dim Shared As String*3 key_ex="x"
-Dim Shared As String*3 key_ra="r"
-Dim Shared As String*3 key_te="t"
-Dim Shared As String*3 key_ju="j"
-Dim Shared As String*3 key_co="c"
-Dim Shared As String*3 key_of="o"
-Dim Shared As String*3 key_gr="g"
-Dim Shared As String*3 key_fi="f"
-Dim Shared As String*3 key_autofire="F"
-Dim Shared As String*3 key_he="h"
-Dim Shared As String*3 key_walk="w"
-Dim Shared As String*3 key_pickup=","
-Dim Shared As String*3 key_drop="D"
-Dim Shared As String*3 key_oxy="O"
-Dim Shared As String*3 key_close="C"
+Dim Shared As ZString*4 key_la="l"
+Dim Shared As ZString*4 key_tala="\Cl"
+Dim Shared As ZString*4 key_sc="s"
+Dim Shared As ZString*4 key_save="S"
+Dim Shared As ZString*4 key_quit="q"
+'dim shared as ZString*4 key_D="D"
+'dim shared as ZString*4 key_G="G"
+Dim Shared As ZString*4 key_report="R"
+Dim Shared As ZString*4 key_rename="C\r"
+Dim Shared As ZString*4 key_dock="d"
+Dim Shared As ZString*4 key_comment="c"
+Dim Shared As ZString*4 key_dropshield="s"
+Dim Shared As ZString*4 key_inspect="i"
+Dim Shared As ZString*4 key_ex="x"
+Dim Shared As ZString*4 key_ra="r"
+Dim Shared As ZString*4 key_te="t"
+Dim Shared As ZString*4 key_ju="j"
+Dim Shared As ZString*4 key_co="c"
+Dim Shared As ZString*4 key_of="o"
+Dim Shared As ZString*4 key_gr="g"
+Dim Shared As ZString*4 key_fi="f"
+Dim Shared As ZString*4 key_autofire="F"
+Dim Shared As ZString*4 key_he="h"
+Dim Shared As ZString*4 key_walk="w"
+Dim Shared As ZString*4 key_pickup=","
+Dim Shared As ZString*4 key_drop="D"
+Dim Shared As ZString*4 key_oxy="O"
+Dim Shared As ZString*4 key_close="C"
 Dim Shared As Byte _autopickup
-Dim Shared As String*3 key_ac="a"
-Dim Shared As String*3 key_ru="R"
+Dim Shared As ZString*4 key_ac="a"
+Dim Shared As ZString*4 key_ru="R"
 
-Dim Shared As String*3 key_nw="7"
-Dim Shared As String*3 key_north="8"
-Dim Shared As String*3 key_ne="9"
-Dim Shared As String*3 key_west="4"
-Dim Shared As String*3 key_east="6"
-Dim Shared As String*3 key_sw="1"
-Dim Shared As String*3 key_south="2"
-Dim Shared As String*3 key_se="3"
-Dim Shared As String*3 key_wait="5"
-Dim Shared As String*3 key_layfire="0"
-Dim Shared As String*3 key_portal="<"
-Dim Shared As String*3 key_logbook="L"
-Dim Shared As String*3 key_togglehpdisplay="\Ch"
-Dim Shared As String*3 key_yes="y"
-Dim Shared As String*3 key_wormholemap="W"
-Dim Shared As String*3 key_togglemanjets="M"
-Dim Shared As String*3 key_cheat="�"
-Dim Shared As String*3 key_pageup="�"
-Dim Shared As String*3 key_pagedown="�"
-Dim Shared As String*3 no_key
-Dim Shared As String*3 key_mfile="�"
-Dim Shared As String*3 key_filter="f"
-Dim Shared As String*3 key_extended="#"
-Dim Shared As String*3 key_accounting="\Ca"
-dim shared as string*3 key_optequip="e"
+Dim Shared As ZString*4 key_nw="7"
+Dim Shared As ZString*4 key_north="8"
+Dim Shared As ZString*4 key_ne="9"
+Dim Shared As ZString*4 key_west="4"
+Dim Shared As ZString*4 key_east="6"
+Dim Shared As ZString*4 key_sw="1"
+Dim Shared As ZString*4 key_south="2"
+Dim Shared As ZString*4 key_se="3"
+Dim Shared As ZString*4 key_wait="5"
+Dim Shared As ZString*4 key_layfire="0"
+Dim Shared As ZString*4 key_portal="<"
+Dim Shared As ZString*4 key_logbook="L"
+Dim Shared As ZString*4 key_togglehpdisplay="\Ch"
+Dim Shared As ZString*4 key_yes="y"
+Dim Shared As ZString*4 key_wormholemap="W"
+Dim Shared As ZString*4 key_togglemanjets="M"
+Dim Shared As ZString*4 key_cheat="�"
+Dim Shared As ZString*4 key_pageup="�"
+Dim Shared As ZString*4 key_pagedown="�"
+Dim Shared As ZString*4 no_key
+Dim Shared As ZString*4 key_mfile="�"
+Dim Shared As ZString*4 key_filter="f"
+Dim Shared As ZString*4 key_extended="#"
+Dim Shared As ZString*4 key_accounting="\Ca"
+dim shared as ZString*4 key_optequip="e"
 dim shared optoxy as byte
 Dim Shared gamerunning As Byte
 Dim Shared uid As UInteger
@@ -311,7 +311,7 @@ Type _transfer
     ti_no As UInteger
     oneway As Short
     discovered As Short
-    desig As String*64
+    desig As ZString*65
     tumod As Short 'the higher the more tunnels
     dimod As Short 'the higher the more digloops
     spmap As Short 'make specialmap if non0
@@ -325,14 +325,14 @@ Type _items
     ti_no As UShort
     uid As UInteger
     w As _cords
-    ICON As String*1
+    ICON As ZString*2
     col As Short
     bgcol As Short
     discovered As Short
     scanmod As Single
-    desig As String*64
-    desigp As String*64
-    ldesc As String*255
+    desig As ZString*65
+    desigp As ZString*65
+    ldesc As ZString*256
     price As Integer
     declare function describe() as string
     ty As Short
@@ -390,7 +390,7 @@ end function
 
 
 Type _weap
-    desig As String*30
+    desig As ZString*31
     dam As Short
     range As Single
     ammo As Short
@@ -410,7 +410,7 @@ End Type
 
 Type _ammotype
     made As Byte
-    desig As String*32
+    desig As ZString*33
     tohit As Byte
     todam As Byte
     toran As Byte
@@ -443,8 +443,8 @@ Type _ship
     turn As UInteger
     money As Integer
     aggr As Short
-    desig As String *32
-    ICON As String *1
+    desig As ZString *33
+    ICON As ZString *2
     ti_no As UInteger
     di As Byte
     turnrate As Byte
@@ -488,7 +488,7 @@ Type _ship
     shieldside(7) As Byte
     tactic As Integer
     h_no As Short
-    h_desig As String*24
+    h_desig As ZString*25
     h_price As UShort
     h_maxhull As Short
     h_maxengine As Short
@@ -498,14 +498,14 @@ Type _ship
     h_maxcrew As Short
     h_maxweaponslot As Short
     h_maxfuel As Single
-    h_sdesc As String*5
-    h_desc As String*255
+    h_sdesc As ZString*6
+    h_desc As ZString*256
     fuelpod As Short
     crewpod As Short
     addhull As Short
 
     dead As Short
-    killedby As String*64
+    killedby As ZString*65
     shiptype As Short
     target As _cords
     equipment(4) As Short
@@ -656,12 +656,12 @@ Type _monster
     aggr As Byte
     killedby As short
 
-    desc As String*127
-    sdesc As String*64
-    ldesc As String*512
-    dhurt As String*16
-    dkill As String*16
-    swhat As String*64
+    desc As ZString*128
+    sdesc As ZString*65
+    ldesc As ZString*513
+    dhurt As ZString*17
+    dkill As ZString*17
+    swhat As ZString*65
     scol As UByte
     invis As Byte
 
@@ -722,8 +722,8 @@ Type _stars
     ti_no As UInteger
     discovered As Byte
     planets(1 To 9) As Short
-    desig As String*12
-    comment As String*60
+    desig As ZString*13
+    comment As ZString*61
 End Type
 
 Type _planet
@@ -763,7 +763,7 @@ Type _planet
     rot As Single
     flags(32) As Byte
     weapon(5) As _weap
-    comment As String*60
+    comment As ZString*61
     mapstat As Byte
     colflag(16) As Byte
     wallset As Byte
@@ -829,7 +829,7 @@ Function _fleet.count() As Short
 End Function
 
 Type _goods
-    'n as string*16
+    'n as ZString*17
     p As Single
     v As Single
     'test as single
@@ -845,7 +845,7 @@ Type _basis
     discovered As Short
     inv(lastgood) As _goods
     'different companys for each station
-    repname As String*32
+    repname As ZString*33
     company As Byte
     spy As Byte
     shop(17) As Byte
@@ -923,7 +923,7 @@ Dim Shared wsinv(20) As _weap
 'dim shared lastfuel as byte
 Type _comment
     c As _cords
-    t As String*32
+    t As ZString*33
     l As Short
 End Type
 
@@ -931,8 +931,8 @@ End Type
 
 Type _table
     points As Integer
-    desig As String *80
-    death As String *80
+    desig As ZString *81
+    death As ZString *81
 End Type
 
 Type _tile
@@ -943,7 +943,7 @@ Type _tile
     bgcol As Short
     col As Short
 
-    desc As String*512
+    desc As ZString*513
     stopwalking As Byte
     oxyuse As Byte
     locked As Byte
@@ -957,18 +957,18 @@ Type _tile
     dam As Short
     range As Short
     tohit As Short
-    hitt As String*512
-    misst As String*512
-    deadt As String*512
+    hitt As ZString*513
+    misst As ZString*513
+    deadt As ZString*513
     turnsinto As Short
-    succt As String*512
-    failt As String*512
-    killt As String*512
+    succt As ZString*513
+    failt As ZString*513
+    killt As ZString*513
     spawnson As Short
     spawnswhat As Short
     spawnsmax As Short
     spawnblock As Short '=0 spawns forever, >0 each spawn =-3, <0 spawning blocked
-    spawntext As String*512
+    spawntext As ZString*513
     survivors As Short
     resources As Short
     gives As Short
@@ -976,7 +976,7 @@ Type _tile
     disease As Byte
     turnsoninspect As Short
     turnroll As Byte
-    turntext As String*512
+    turntext As ZString*513
     causeaeon As Byte
     aetype As Byte
     hides As Byte
@@ -984,7 +984,7 @@ Type _tile
     onclose As Short
     onopen As Short
     turnsonleave As Short
-    turnsonleavetext As String*512
+    turnsonleavetext As ZString*513
 End Type
 
 Type _disease
@@ -1007,8 +1007,8 @@ Type _disease
 End Type
 
 Type _crewmember
-    ICON As String*1
-    n As String*20
+    ICON As ZString*2
+    n As ZString*21
     typ As Byte
     paymod As Byte
     hpmax As Byte
@@ -1099,7 +1099,7 @@ Type _shipfire
     what As Short
     when As Short
     where As _cords
-    tile As String*1
+    tile As ZString*2
     stun As Byte
 End Type
 
@@ -1117,7 +1117,7 @@ Type _dialognode
 End Type
 
 Type _civilisation
-    n As String*16
+    n As ZString*17
     home As _cords
     ship(1) As _ship
     item(1) As _items
@@ -1227,7 +1227,7 @@ Type _bountyquest
     employer As Byte
     ship As Short
     reward As Short
-    desig As String *32
+    desig As ZString *33
     reason As Byte
     lastseen As _cords
 End Type
@@ -1262,7 +1262,7 @@ End Type
 
 Type _questguy
     gender As Byte
-    n As String*25
+    n As ZString*26
     job As Short
     location As Short
     talkedto As Short'1 Knows, 2 asked want
@@ -1870,7 +1870,7 @@ Type _cardcount
 End Type
 
 Type _pokerplayer
-    Name As String*16
+    Name As ZString*17
     risk As Short
     bet As Byte
     fold As Byte
@@ -2641,9 +2641,9 @@ Declare Function system_text(a As Short) As String
 Dim Shared As UInteger _fgcolor_,_bgcolor_
 
 Declare Function set__color(fg As Short,bg As Short,visible As Byte=1) As Short
-Declare Function _tcol( ByVal src As UInteger, ByVal dest As UInteger, ByVal param As Any Ptr ) As UInteger
+Declare Function _tcol( ByVal src As ULong, ByVal dest As ULong, ByVal param As Any Ptr ) As ULong
 
-Function _tcol( ByVal src As UInteger, ByVal dest As UInteger, ByVal param As Any Ptr ) As UInteger
+Function _tcol( ByVal src As ULong, ByVal dest As ULong, ByVal param As Any Ptr ) As ULong
     Dim c As UInteger
     c=Color
     If src=0 Then
@@ -2653,9 +2653,9 @@ Function _tcol( ByVal src As UInteger, ByVal dest As UInteger, ByVal param As An
     EndIf
 End Function
 
-Declare Function _col( ByVal src As UInteger, ByVal dest As UInteger, ByVal param As Any Ptr ) As UInteger
+Declare Function _col( ByVal src As ULong, ByVal dest As ULong, ByVal param As Any Ptr ) As ULong
 
-Function _col( ByVal src As UInteger, ByVal dest As UInteger, ByVal param As Any Ptr ) As UInteger
+Function _col( ByVal src As ULong, ByVal dest As ULong, ByVal param As Any Ptr ) As ULong
     If src=0 Then
         Return _bgcolor_
     Else
@@ -2663,9 +2663,9 @@ Function _col( ByVal src As UInteger, ByVal dest As UInteger, ByVal param As Any
     EndIf
 End Function
 
-Declare Function _icol( ByVal src As UInteger, ByVal dest As UInteger, ByVal param As Any Ptr ) As UInteger
+Declare Function _icol( ByVal src As ULong, ByVal dest As ULong, ByVal param As Any Ptr ) As ULong
 
-Function _icol( ByVal src As UInteger, ByVal dest As UInteger, ByVal param As Any Ptr ) As UInteger
+Function _icol( ByVal src As ULong, ByVal dest As ULong, ByVal param As Any Ptr ) As ULong
     'Itemcolor
     If src=0 Then
         Return Hiword(Color)

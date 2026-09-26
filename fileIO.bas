@@ -323,7 +323,7 @@ end function
 
 function load_fonts() as short
     dim as short a,debug,f
-    dim as integer depth
+    dim as long depth
 
     if debug=1 and _debug=1 then
         f=freefile
@@ -495,7 +495,7 @@ Function font_load_bmp(ByRef _filename As String) As UByte Ptr
     BLoad(_filename,font)
     Dim As UByte Ptr fontheader=Cast(UByte Ptr,font+SizeOf(FB.image))
 
-    Select Case As Const fontheader[0]
+    Select Case fontheader[0]
         Case 0 'standard draw string font buffer
             fontheader[0]=Point(0,0,font)
             fontheader[1]=Point(1,0,font)
@@ -2133,13 +2133,13 @@ end function
 function getfilename() as string
     dim filename as string
     dim a as string
-    dim b as string*36
+    dim b as ZString*37
     dim c as short
     dim n(24) as string
-    dim d as string*36
-    dim vers as string*36
-    dim datestring as string*12
-    dim ustring as string*512
+    dim d as ZString*37
+    dim vers as ZString*37
+    dim datestring as ZString*13
+    dim ustring as ZString*513
     dim as string help
     dim text as string
     dim unflags(lastspecial) as byte
@@ -2326,13 +2326,13 @@ function savegame(crash as short=0) as short
     dim c as short
     dim fname as string
     dim f as integer
-    dim desig as string*36
-    dim names as string*36
-    dim versionstring as string*36
-    dim datestring as string*12
+    dim desig as ZString*37
+    dim names as ZString*37
+    dim versionstring as ZString*37
+    dim datestring as ZString*13
     dim cl as string
     dim unflags(lastspecial) as byte
-    dim artifactstr as string*512
+    dim artifactstr as ZString*513
 
     'Needed for compression
     dim as Integer dest_len, header_len
@@ -2626,10 +2626,10 @@ function load_game(filename as string) as short
     dim c as short
     dim fname as string
     dim f as integer
-    dim desig as string*36
-    dim names as string*36
-    dim versionstring as string*36
-    dim datestring as string*12
+    dim desig as ZString*37
+    dim names as ZString*37
+    dim versionstring as ZString*37
+    dim datestring as ZString*13
     dim unflags(lastspecial) as byte
     dim as short emptyshort
     dim text as string
@@ -3031,7 +3031,7 @@ function savepng( _
 
     if depth <> 32 then save_alpha = 0
 
-    select case as const depth
+    select case depth
 
     case 1 to 8
 

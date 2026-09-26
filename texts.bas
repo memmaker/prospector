@@ -510,7 +510,7 @@ function crew_bio(i as short) as string
         if crew(i).baseskill(3)=7 then t=t &"|Doctor  :7"
     endif
     if crew(i).typ<=9 or (crew(i).typ>=14 and crew(i).typ<=16) then
-        t="Age: "& 18+crew(i).story(6) &" Size: 1."& 60+crew(i).story(7)*4 &"m Weight: " &50+crew(i).story(8)*4+crew(i).story(7) &" kg. ||"
+        t="Age: "& 18+crew(i).story(6) &" Size: 1."& 60+crew(i).story(7)*4 &"m Weight: " & 50+crew(i).story(8)*4+crew(i).story(7) &" kg. ||"
         select case crew(i).story(0)
         case is =1
             t=t &"Place of Birth: Spaceship in transit"
@@ -523,7 +523,7 @@ function crew_bio(i as short) as string
         case else
             t=t &"Place of Birth: Colony"
         end select
-        t=t &" |Education: " &4+fix(crew(i).story(1)/2) &" years. "
+        t=t &" |Education: " & 4+fix(crew(i).story(1)/2) &" years. "
         t=t &" |Work experience: " &cint(crew(i).story(2)/3) &" years. |"
         t=t &" ||To hit gun: "&tohit_gun(i) &"|To hit cc: "&tohit_close(i) &"||"
         select case crew(i).morale

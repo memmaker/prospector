@@ -4,8 +4,8 @@ function keyin(byref allowed as string="" , blocked as short=0)as string
     dim as string text
     static as byte recording
     static as byte seq
-    static as string*3 comseq
-    static as string*3 lastkey
+    static as ZString*4 comseq
+    static as ZString*4 lastkey
     dim as short a,b,i,tog1,tog2,tog3,tog4,ctr,f,it,debug
     dim as string control
     if walking<>0 then sleep 50
@@ -420,7 +420,7 @@ end function
 
 function askyn(q as string,col as short=11,sure as short=0) as short
     dim a as short
-    dim key as string*1
+    dim key as ZString*2
     dprint (q,col)
     do
         key=keyin

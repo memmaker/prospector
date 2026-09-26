@@ -13,9 +13,9 @@ function change_captain_appearance(x as short,y as short) as short
         text="Captain:/Name: "&crew(1).n &"/"
         if _debug=1310 then text=text &" s10:"&crew(1).story(10)
         text &= "Gender: "&mf(crew(1).story(10))&"/"
-        text &= "Age: "&18+crew(1).story(6) &"/"
-        text &= "Height: 1."&60+crew(1).story(7) &"/"
-        text &= "Weight: "&50+crew(1).story(8)*4+crew(1).story(7) &"/"
+        text &= "Age: "& 18+crew(1).story(6) &"/"
+        text &= "Height: 1."& 60+crew(1).story(7) &"/"
+        text &= "Weight: "& 50+crew(1).story(8)*4+crew(1).story(7) &"/"
         text &= "Change outfit/"
         if awayteam.helmet=0 then
             text &="close helmet/"

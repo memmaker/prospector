@@ -1041,7 +1041,7 @@ function gen_bountyquests() as short
     dim as short f,i
     dim as string w(4),l
     f=freefile
-    open "data\bountyquests.csv" for input as #f
+    open "data/bountyquests.csv" for input as #f
     do
         line input #f,l
         string_towords(w(),l,";")

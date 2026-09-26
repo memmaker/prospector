@@ -4053,18 +4053,18 @@ Function ep_gives(awayteam As _monster, ByRef nextmap As _cords, shipfire() As _
             dprint "The Admininstrator thanks you for dispatching the beast, and gives you 100 Cr."
         EndIf
         If planets(slot).flags(27)>0 And planets(slot).flags(26)=4 Then
-            dprint "You get "&50*planets(slot).flags(27) &" Cr. for the destroyed mushrooms."
+            dprint "You get "& 50*planets(slot).flags(27) &" Cr. for the destroyed mushrooms."
             addmoney(50*planets(slot).flags(27),mt_quest2)
             planets(slot).flags(27)=0
         EndIf
         If planets(slot).flags(27)>0 And planets(slot).flags(26)=5 Then
-            dprint "'Thanks for helping to fight back the pirates' You get "&250*planets(slot).flags(27) &" Cr. for the destroyed mushrooms."
+            dprint "'Thanks for helping to fight back the pirates' You get "& 250*planets(slot).flags(27) &" Cr. for the destroyed mushrooms."
             addmoney(250*planets(slot).flags(27),mt_quest2)
             planets(slot).flags(27)=0
         EndIf
 
         If planets(slot).flags(27)>0 And planets(slot).flags(26)=12 Then
-            dprint "You get "&10*planets(slot).flags(27) &" Cr. for the killed tribbles."
+            dprint "You get "& 10*planets(slot).flags(27) &" Cr. for the killed tribbles."
             addmoney(10*planets(slot).flags(27),mt_quest2)
             planets(slot).flags(27)=0
         EndIf
@@ -4079,7 +4079,7 @@ Function ep_gives(awayteam As _monster, ByRef nextmap As _cords, shipfire() As _
                     If planets(slot).flags(26)=9 Then
                         If rnd_range(1,100)<planets(slot).flags(27) Then planets(slot).flags(26)=0
                     EndIf
-                    dprint "You sell "&30*a &" tons of fuel for "& Int(30*a*fuelsell) &" Cr."
+                    dprint "You sell "& 30*a &" tons of fuel for "& Int(30*a*fuelsell) &" Cr."
                 EndIf
             EndIf
             dprint "How much fuel do you want to sell? (" &player.fuel &")"
