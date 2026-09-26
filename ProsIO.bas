@@ -1050,6 +1050,9 @@ function explore_space_messages() as short
                 #ifdef _FBSOUND
                 fbs_Play_Wave(sound(2))
                 #endif
+                #ifdef __FB_JS__ 'RVIP web sound: rv_sound in port/webgfx.c
+                rv_sound(2,_volume)
+                #endif
             endif
             'RVIP auto_more: the con_sound=2 alert no longer waits for Space/Enter
         endif
@@ -1067,6 +1070,9 @@ function explore_space_messages() as short
                 #endif
                 #ifdef _FBSOUND
                 fbs_Play_Wave(sound(2))
+                #endif
+                #ifdef __FB_JS__ 'RVIP web sound: rv_sound in port/webgfx.c
+                rv_sound(2,_volume)
                 #endif
             endif
             'RVIP auto_more: the con_sound=2 alert no longer waits for Space/Enter

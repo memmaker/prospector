@@ -24,7 +24,7 @@
 
 	var running = false, ended = false, wantSaveFlag = false, lastSave = 0;
 	var off, offCtx, img = null, serial = -1, full = true, wm = null;
-	var LAYOUT = ROOT + '/config/web-layout.json', L = { scale: 0, sscale: 1, font: 13, wm: null }, auto = true;
+	var LAYOUT = ROOT + '/config/web-layout.json', L = { scale: 0, sscale: 1, font: 13, wm: null, sound: false }, auto = true;
 	var cvs = {};   /* id -> { cv, ctx } : map, stat, pop */
 
 	function $(id) { return document.getElementById(id); }
@@ -77,7 +77,7 @@
 		requestAnimationFrame(frame);
 	}
 	function saveLayout() {
-		try { Module.FS.writeFile(LAYOUT, JSON.stringify({ scale: auto ? 0 : L.scale, sscale: L.sscale, font: L.font, wm: L.wm })); syncFiles(); } catch (e) { }
+		try { Module.FS.writeFile(LAYOUT, JSON.stringify({ scale: auto ? 0 : L.scale, sscale: L.sscale, font: L.font, wm: L.wm, sound: L.sound })); syncFiles(); } catch (e) { }
 	}
 	function zoom(d) {
 		auto = false;
@@ -87,8 +87,9 @@
 	function fonts() { $('msg').style.fontSize = $('inv').style.fontSize = L.font + 'px'; }
 	/* windows: the shared tiling window manager (rvip-wm.js, RVIP W4) */
 	function makeWM() {
-		try { var s = JSON.parse(Module.FS.readFile(LAYOUT, { encoding: 'utf8' })); if (s) { L.scale = s.scale | 0; L.sscale = s.sscale || 1; L.font = s.font || 13; L.wm = s.wm || null; } } catch (e) { }
+		try { var s = JSON.parse(Module.FS.readFile(LAYOUT, { encoding: 'utf8' })); if (s) { L.scale = s.scale | 0; L.sscale = s.sscale || 1; L.font = s.font || 13; L.wm = s.wm || null; L.sound = !!s.sound; } } catch (e) { }
 		auto = !L.scale;
+		soundLabel();
 		fonts();
 		wm = RvipWM({
 			area: $('game'), menu: $('btn-layout'),
@@ -108,6 +109,12 @@
 		});
 		wm.apply();
 	}
+	/* Sound: the game decides what plays (rv_sound at each of its play sites,
+	   port/webgfx.c names data/<name>.wav); this button is the real switch,
+	   off by default, kept in web-layout.json. */
+	function soundLabel() { $('btn-sound').classList.toggle('on', L.sound); }
+	function toggleSound() { L.sound = !L.sound; soundLabel(); saveLayout(); }
+	function rvSound(p, vol) { if (L.sound && vol > 0) RVIPSound.play([latin1(p)], Math.min(1, vol / 2)); }
 	/* from the game (port/webgfx.c): messages, inventory, game end */
 	var invText = null;
 	function rvMsg(p, rgb, rep) { RvipWM.log($('msg'), { t: latin1(p), color: hexcol(rgb) }, !!rep); }
@@ -294,7 +301,7 @@
 			requestAnimationFrame(frame);
 			setInterval(autosave, 500);
 		},
-		rvMsg: rvMsg, rvInv: rvInv, rvGameOver: rvGameOver,
+		rvMsg: rvMsg, rvInv: rvInv, rvGameOver: rvGameOver, rvSound: rvSound,
 		onExit: function (code) { rvGameOver(); },   /* an END the game reaches without rv_gameover (error paths) */
 		print: function (s) { console.log(s); },
 		printErr: function (s) { console.warn(s); },
@@ -334,6 +341,7 @@
 		$('btn-zoom-in').onclick = function () { zoom(1); };
 		$('btn-zoom-out').onclick = function () { zoom(-1); };
 		$('btn-tiles').onclick = toggleTiles;
+		$('btn-sound').onclick = toggleSound;
 		document.querySelectorAll('button').forEach(function (b) {
 			b.addEventListener('mousedown', function (e) { e.preventDefault(); });
 		});

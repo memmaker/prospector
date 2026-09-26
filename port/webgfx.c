@@ -125,7 +125,16 @@ void rv_gameover(void) {
   EM_ASM({ if (Module.rvGameOver) Module.rvGameOver(); });
   for (;;) emscripten_sleep(1000);
 }
+/* sound n of the game's sound() table (load_sounds, fileIO.bas), at the
+   game's volume 0-4; the page plays data/<name>.wav if its Sound button is on */
+void rv_sound(int n, int vol) {
+  static const char *name[13] = { 0, "alarm_1", "alarm_2", "weap_1", "weap_2", "wormhole", 0,
+    "weap_4", "weap_3", "weap_5", "start", "land", "pain" };
+  if (n < 1 || n > 12 || !name[n]) return;
+  EM_ASM({ if (Module.rvSound) Module.rvSound($0, $1); }, name[n], vol);
+}
 #else
+void rv_sound(int n, int vol) {}
 void rv_msg(const char *s, int rgb, int rep) {}
 void rv_inv(const char *s) {}
 void rv_gameover(void) {}

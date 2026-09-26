@@ -693,6 +693,12 @@ function dam_awayteam(dam as short, ap as short=0,disease as short=0,all as shor
         sleep 100
     endif
     #endif
+    #ifdef __FB_JS__ 'RVIP web sound: rv_sound in port/webgfx.c
+    if configflag(con_damscream)=0 then
+        rv_sound(12,_volume)
+        sleep 100
+    endif
+    #endif
     sleep 25
 
     if reequip=1 then 

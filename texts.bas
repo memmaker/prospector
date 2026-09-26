@@ -593,6 +593,9 @@ function alerts() as short
                 #ifdef _FBSOUND
                 fbs_Play_Wave(sound(1))
                 #endif
+                #ifdef __FB_JS__ 'RVIP web sound: rv_sound in port/webgfx.c
+                rv_sound(1,_volume)
+                #endif
             endif
         next
         walking=0
@@ -609,6 +612,10 @@ function alerts() as short
                 #endif
                 #ifdef _FBSOUND
                 fbs_Play_Wave(sound(1))
+                sleep 350
+                #endif
+                #ifdef __FB_JS__ 'RVIP web sound: rv_sound in port/webgfx.c
+                rv_sound(1,_volume)
                 sleep 350
                 #endif
             endif
@@ -629,6 +636,10 @@ function alerts() as short
                 fbs_Play_Wave(sound(1))
                 sleep 350
                 #endif
+                #ifdef __FB_JS__ 'RVIP web sound: rv_sound in port/webgfx.c
+                rv_sound(1,_volume)
+                sleep 350
+                #endif
             endif
         next
         walking=0
@@ -645,6 +656,10 @@ function alerts() as short
                     #endif
                     #ifdef _FBSOUND
                     fbs_Play_Wave(sound(1))
+                    sleep 350
+                    #endif
+                    #ifdef __FB_JS__ 'RVIP web sound: rv_sound in port/webgfx.c
+                    rv_sound(1,_volume)
                     sleep 350
                     #endif
                     'RVIP auto_more: the con_sound=2 alert no longer waits for Space/Enter
@@ -665,6 +680,10 @@ function alerts() as short
                     fbs_Play_Wave(sound(1))
                     sleep 350
                     #endif
+                    #ifdef __FB_JS__ 'RVIP web sound: rv_sound in port/webgfx.c
+                    rv_sound(1,_volume)
+                    sleep 350
+                    #endif
                     'RVIP auto_more: the con_sound=2 alert no longer waits for Space/Enter
                 endif
             next
@@ -682,6 +701,10 @@ function alerts() as short
                     #endif
                     #ifdef _FBSOUND
                     fbs_Play_Wave(sound(1))
+                    sleep 350
+                    #endif
+                    #ifdef __FB_JS__ 'RVIP web sound: rv_sound in port/webgfx.c
+                    rv_sound(1,_volume)
                     sleep 350
                     #endif
                     'RVIP auto_more: the con_sound=2 alert no longer waits for Space/Enter

@@ -239,6 +239,9 @@ Function landing(mapslot As Short,lx As Short=0,ly As Short=0,Test As Short=0) A
         #IfDef _FBSOUND
         If (configflag(con_sound)=0 Or configflag(con_sound)=2) And mapslot>0 Then fbs_Play_Wave(Sound(11))
         #EndIf
+        #ifdef __FB_JS__ 'RVIP web sound: rv_sound in port/webgfx.c
+        If (configflag(con_sound)=0 Or configflag(con_sound)=2) And mapslot>0 Then rv_sound(11,_volume)
+        #endif
         
         If player.dead=0 And awayteam.hp>0 Then
             

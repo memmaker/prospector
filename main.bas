@@ -3125,6 +3125,9 @@ Function wormhole_travel() As Short
             #IfDef _FBSOUND
             If configflag(con_sound)=0 Or configflag(con_sound)=2 Then fbs_Play_Wave(Sound(5))
             #EndIf
+            #ifdef __FB_JS__ 'RVIP web sound: rv_sound in port/webgfx.c
+            If configflag(con_sound)=0 Or configflag(con_sound)=2 Then rv_sound(5,_volume)
+            #endif
             If rnd_range(1,100)<distance(map(b).c,player.c)+maximum(Abs(spacemap(player.c.x,player.c.y)),5) Then
                 add_ano(map(b).c,player.c)
             EndIf
@@ -3719,6 +3722,9 @@ Function hitmonster(defender As _monster,attacker As _monster,mapmask() As Byte,
     #IfDef _FBSOUND
     If configflag(con_sound)=0 Or configflag(con_sound)=2 Then fbs_Play_Wave(Sound(3))
     #EndIf
+    #ifdef __FB_JS__ 'RVIP web sound: rv_sound in port/webgfx.c
+    If configflag(con_sound)=0 Or configflag(con_sound)=2 Then rv_sound(3,_volume)
+    #endif
     If defender.movetype=mt_fly Then
         mname="flying "
         targetnumber=15

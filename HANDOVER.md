@@ -430,3 +430,66 @@ Next: **stage 6 (docs + sound)**. What stage 6 needs:
   (replaces the `web/help.html` stub; keep `Manual.pdf` in dist).
 - Credits: Matthias Mennel (game, zlib licence), David Gervais and Deon
   (sprites, used with permission).
+
+### Stage 6 — docs + sound (done)
+
+- **Sound**: the game decides. Each of the 16 `#ifdef _FBSOUND` play blocks
+  (texts.bas 6, exploreplanet.bas 3, ProsIO.bas 2, main.bas 2, crew.bas,
+  landing.bas, spacecom.bas) got a twin `#ifdef __FB_JS__` block right after it
+  with the same conditions (`configflag(con_sound)`, `con_damscream`, range,
+  atmosphere) calling `rv_sound(n, _volume)` (declared in `types.bas`).
+  `port/webgfx.c` `rv_sound` names the file from the game's `sound()` table
+  (`load_sounds`, fileIO.bas: 1 alarm_1 … 12 pain; 6 unused) and calls
+  `Module.rvSound(name, vol)`; `web/prospector.js` plays `sound/<name>.wav`
+  with the shared `rvip-sound.js` at `min(1, _volume/2)` (fbsound's master
+  volume) only if the **Sound** button is on. Button off by default, state in
+  `web-layout.json` (`sound`). No music (the game has none), no .cfg (the C
+  table names the files). `build.sh` copies `data/*.wav` → `dist/sound/` and
+  `rvip-sound.js` from rvip-tools. Native build unchanged (`__FB_JS__` only).
+- **Docs**: `~/Desktop/Games/Roguelikes/Docs` (no git there): `build-docs.py`
+  GAMES entry `prospector.html` (before Crawl) + `parse_prospector(root)`: the
+  complete key list is parsed from the Enter menu table (`rv_cmdadd` lines in
+  `kbinput.bas`, space/planet branch) with the default keys of `types.bas`,
+  plus space combat keys (58 entries); info About / Tips / In the browser /
+  Credits. `guides.py`: GUIDES (first flight, staying alive, getting rich) and
+  SAVING. Rebuilt: only `index.html` (new card) and `prospector.html` changed,
+  every other page byte-identical.
+- **Help**: `web/make-help.py` (LambdaRogue's pattern) → `dist/help.html`
+  (replaces the stub `web/help.html`, deleted): about, keys to remember,
+  essentials, full list, saving, tips, guide, in the browser, the 2011
+  `Manual.pdf` (link + iframe, still `doc/Manual.pdf`), About this version
+  (svn r197 + R197 release data, memmaker/prospector link, credits). Help CSS
+  copied from LambdaRogue's page.
+- **Tested** (own tab, local server, hidden pane: frames POSTed to shotsrv,
+  `setTimeout` ≤ 20 ms via `MessageChannel`): fresh load (no IndexedDB) →
+  Sound off; real click on Sound → on, saved; new game, flew until the game
+  said "Fuel low" → `GET /sound/alarm_2.wav 200` (the game's own alarm
+  path); reload → Sound still on; Help shows all 8 sections, 58 keys, the
+  manual iframe; no console errors. Test databases `/prospector/*` deleted.
+  Native ASan build (`port/native-test.sh`, seed 5, random keys) ran 9 min
+  (timeout) without ASan/UBSan reports.
+- **Open problems**: sound seen for one site only (fuel alarm); the others use
+  the same hook (compiled: 18 calls in the generated C). The game's volume 0
+  mutes, the page does no own volume. `Manual.pdf` (2014, root) is newer than
+  the shipped 2011 `doc/Manual.pdf`; the key lists in Help are current either
+  way. The memmaker/prospector link in Help is dead until stage 7.
+
+Next: **stage 7 (publish)**. What stage 7 needs:
+- Repo: `gh repo create memmaker/prospector --public --source . --remote
+  memmaker --push` (orchestrator). History is already clean: `7aba66b` = svn
+  r197 snapshot (upstream), `1b928c0` = R197 release data, then `port:` /
+  `RVIP:` commits.
+- README first lines: upstream = Prospector R197 by Matthias Mennel, Google
+  Code svn trunk r197 (2014-12-28, archive
+  `https://storage.googleapis.com/google-code-archive-source/v2/code.google.com/rlprospector/source-archive.zip`,
+  no history, snapshot commit `7aba66b`) + data from `R197prospector_l.zip`
+  (web.archive.org copy of prospector.at, commit `1b928c0`); compare view
+  `https://github.com/memmaker/prospector/compare/1b928c0...main` (or from
+  `7aba66b`). Licence zlib (`README.txt`, keep it; altered source must be
+  marked: the README says so). Credits: Matthias Mennel (game), David
+  Gervais and Deon (graphics, with permission), FBSound/zlib/cards.bi as in
+  `README.txt`.
+- W1 base-version text on the card: "Based on Prospector R197 · Google Code
+  rlprospector svn r197". Help "About this version" already has it.
+- Tree entry: original game (no ancestor), 2008, Matthias Mennel. Card image,
+  `og.py`, `deploy.sh` (guard already in `web/deploy.sh`) after the push.

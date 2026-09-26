@@ -1286,6 +1286,13 @@ function com_fire(byref target as _ship,byref attacker as _ship,byref w as short
         if attacker.weapons(w).ammomax=0 and (configflag(con_sound)=0 or configflag(con_sound)=2) then fbs_Play_Wave(sound(9)) 'Missile
     endif
     #endif
+    #ifdef __FB_JS__ 'RVIP web sound: rv_sound in port/webgfx.c
+    if distance(target.c,attacker.c)<(attacker.sensors+2)*attacker.senac then
+        if attacker.weapons(w).ammomax>0 and attacker.weapons(w).ROF>0 and (configflag(con_sound)=0 or configflag(con_sound)=2) then rv_sound(7,_volume) 'Laser
+        if attacker.weapons(w).ammomax>0 and attacker.weapons(w).ROF=0 and (configflag(con_sound)=0 or configflag(con_sound)=2) then rv_sound(8,_volume) 'Missile battery
+        if attacker.weapons(w).ammomax=0 and (configflag(con_sound)=0 or configflag(con_sound)=2) then rv_sound(9,_volume) 'Missile
+    endif
+    #endif
     do
         firefree=0
         if attacker.weapons(w).ammo=0 then

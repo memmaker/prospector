@@ -1314,6 +1314,9 @@ Function ep_launch(ByRef nextmap As _cords) As Short
                     #IfDef _FBSOUND
                     If configflag(con_sound)=0 Or configflag(con_sound)=2 Then fbs_Play_Wave(Sound(10))
                     #EndIf
+                    #ifdef __FB_JS__ 'RVIP web sound: rv_sound in port/webgfx.c
+                    If configflag(con_sound)=0 Or configflag(con_sound)=2 Then rv_sound(10,_volume)
+                    #endif
                 EndIf
             EndIf
         Else
@@ -1324,6 +1327,9 @@ Function ep_launch(ByRef nextmap As _cords) As Short
             #IfDef _FBSOUND
             If configflag(con_sound)=0 Or configflag(con_sound)=2 Then fbs_Play_Wave(Sound(10))
             #EndIf
+            #ifdef __FB_JS__ 'RVIP web sound: rv_sound in port/webgfx.c
+            If configflag(con_sound)=0 Or configflag(con_sound)=2 Then rv_sound(10,_volume)
+            #endif
         EndIf
     EndIf
     Return 0
@@ -2611,6 +2617,10 @@ Function ep_shipfire(shipfire() As _shipfire) As Short
                 'sleep 100+distance(awayteam.c,shipfire(sf2).where)*6
                 If (configflag(con_sound)=0 Or configflag(con_sound)=2) And planets(slot).atmos>1 Then fbs_Play_Wave(Sound(4))
                 #EndIf
+                #ifdef __FB_JS__ 'RVIP web sound: rv_sound in port/webgfx.c
+                'sleep 100+distance(awayteam.c,shipfire(sf2).where)*6
+                If (configflag(con_sound)=0 Or configflag(con_sound)=2) And planets(slot).atmos>1 Then rv_sound(4,_volume)
+                #endif
             EndIf
             If shipfire(sf2).what>10 Then
                 player.weapons(shipfire(sf2).what)=make_weapon(0)
