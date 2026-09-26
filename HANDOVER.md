@@ -611,3 +611,39 @@ web.archive.org). Card image for the og block: `roguelikes/prospector.png`.
   unread).
 
 Next: **stage 9 (graveyard + leaderboard)**.
+
+### Stage 9 — graveyard + leaderboard (done)
+
+- **Hook** (`bd0801f`): `death_message()` (highscore.bas) calls `rv_endrun`
+  first thing when `player.dead<99` (99 = "Till next time!" save & quit: no
+  report). `ev` from `player.dead`: 98 (retired, the game's only won ending)
+  = win, 6 (`q y`, "Farewell Captain!") = quit, everything else = death.
+  `port/webgfx.c` `rv_beacon` (EM_JS; `EM_ASM` choked on commas in the JS)
+  URL-encodes and calls `RvipWM.report`.
+- **Fields**: `g=prospector`; `name` = captain `crew(1).n` (random, never
+  typed; ship name `player.desig` as fallback); `killer` (deaths only) =
+  `player.killedby` for dead 3/25 (monster `sdesc`, articles stripped), else
+  the game's own `get_death()` line without " after <time>" (e.g. "Got fried
+  extra crispy while bathing in lava"); `depth` = star systems discovered
+  (`map().discovered=1`; no dungeon depth in space, 0 early on); `score` =
+  the high-score value (`player.score`, else `score()`; can be negative:
+  dead redshirts cost 100 each); `turns` = `player.turn`. **Missing**: `lvl`
+  (no captain or ship level in the game).
+- **Killer art** (`roguelikes-index` `2f43192`, deployed): `make.py`
+  `prospector()`: 87 PNGs from `graphics/critters.bmp` (tile 1000+n, 20 per
+  row, 24 px, magenta → black, 32 px nearest); names = `sdesc="…"` literals
+  in each `if a=` block of `monster.bas` with the nearest preceding
+  `ti_no=10xx`, plus the 12 `species()` and "vicious <species>" (tile
+  g+1001). No art for non-monster deaths and the 1500s (characters.bmp:
+  thugs, citizens) → text fallback.
+- **Verified live** (own tab, hidden pane): quit (`q y`) → beacon
+  `ev=quit&name=Nadja%20Creelman&depth=0&score=1262&turns=10&id…&at…` → 204,
+  outbox empty; death on a no-oxygen planet (landed with suitless crew,
+  walked off, lava) → `ev=death&name=Gale%20Flynn&killer=Got%20fried…lava&
+  depth=0&score=-613&turns=470` → 204, outbox empty; both runs reloaded to
+  the title. Win (retire) not played through (same code path, ev chosen by
+  `player.dead=98`). IndexedDB `/prospector/*` deleted on ruzzoli.de and on
+  the local test origin 127.0.0.1:8791.
+- **Open**: long killer texts for non-monster deaths (the game's own
+  sentences); graveyard shows them as text.
+
