@@ -587,3 +587,27 @@ Next: **stage 8 (shrine)**. Material: `Manual.pdf` (1.1, 2014) and
 `changelog.txt` (upstream change log), game data in `data/` for stats; no
 walkthrough in the repo (search RogueBasin / the old prospector.at copies on
 web.archive.org). Card image for the og block: `roguelikes/prospector.png`.
+
+### Stage 8 — shrine (done)
+
+- **Shrine**: https://ruzzoli.de/roguelikes/shrine/prospector.html
+  (`roguelikes-index` `29fac37`) + `shrine/prospector/`: `Manual.pdf` (1.1,
+  2014), `manual.html` (PDFKit text per page, `<pre>`, TOC from caps
+  headings), `changelog.txt` (upstream log, CRLF → LF, CP437 0xF8 → °),
+  `license.txt` (README.txt, zlib). og block by hand, image
+  `roguelikes/prospector.png`.
+- Card Info button, tree ✦, game-page title link (`web/index.html`, `aeb9bf4`,
+  deployed) all checked live; every page link 200; page 375 px wide at 375 px.
+- **Lineage**: first release 0.1.0 on 18 Feb 2009 (RogueBasin; Google Code
+  archive downloads start at 0.1.0, dated ones 0.1.15b 2010-12-24 to 0.2.4
+  2012-01-17). README © 2008 = start of work. Tree and card year 2008 → 2009.
+  Last release R210, 29 Jul 2018 (RogueBasin). Influences Traveller,
+  Starflight (RogueBasin). Fan fork SoPissd/Prospector-RL (2014), no release.
+- **Missing**: no written walkthrough (prospector.at gone; Google Code wiki
+  pages FAQ/QuickStartGuide listed but not downloadable); Let's Play videos
+  linked (One F Jef 2011, TheUberHunter 2012). **Cheats**: none reachable
+  (`_debug=0`; `key_cheat` is U+FFFD in upstream source, no key maps to it).
+- freebasic.net and bay12forums answer bots with 403 (announcement threads
+  unread).
+
+Next: **stage 9 (graveyard + leaderboard)**.
