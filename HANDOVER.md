@@ -548,3 +548,42 @@ Next: **stage 7 (publish)**. What stage 7 needs:
   rlprospector svn r197". Help "About this version" already has it.
 - Tree entry: original game (no ancestor), 2008, Matthias Mennel. Card image,
   `og.py`, `deploy.sh` (guard already in `web/deploy.sh`) after the push.
+
+### Stage 7 — publish (done)
+
+- **Live**: https://ruzzoli.de/roguelikes/prospector/ (deployed from `7157401`);
+  repo https://github.com/memmaker/prospector, compare
+  https://github.com/memmaker/prospector/compare/1b928c0...main.
+- `README.md` (new, on top of the kept `README.txt`): upstream = svn r197
+  snapshot `7aba66b` + `R197prospector_l.zip` data `1b928c0`, marked as an
+  altered source version (zlib point 2), credits Matthias Mennel / David
+  Gervais and Deon / FBSound / zlib / cards.bi, what the port adds, build.
+- Help now embeds the 2014 `Manual.pdf` (version 1.1, 29 pages, same manual
+  as `doc/Manual.pdf` 1.0 from 2011, 22 pages): `web/build.sh` copies the
+  root file, `make-help.py` says "version 1.1, 2014".
+- Selection page (`roguelikes-index` `251142c`): card (image
+  `prospector.png` 384×160 = 16×7 tiles of 24 px from `graphics/land.bmp`,
+  `critters.bmp`, `player.bmp`, cropped 4 px top/bottom), W1 line "Based on
+  Prospector R197 · Google Code rlprospector svn r197", count 38; tree entry
+  under Rogue as `insp` between LambdaRogue and Brogue: 2008 · Matthias
+  Mennel, original game, own code. og block written by hand into
+  `web/index.html` (og.py's second loop, this game only; the old plain
+  description meta removed); live `og:image` checked with curl.
+- **Verified live** (browser pane, own tab, hidden pane): first-start
+  question, autonaming, title, new game (Scout, talents, name) → Map /
+  Status / Messages / Inventory windows; 8 steps east moved the Map view
+  from 0 to −88 px with the ship (hx 252 → 444); `q` → "Do you really want
+  to quit? (y/n)" in the prompt box over Map, windows kept, `n` back; Help
+  opens (About this version, manual 1.1 line) and closes with Esc; Sound
+  toggles on/off; `q y` → Farewell → n → Esc → n → Esc → page reloaded by
+  itself to the title. Console: no errors from the game (only my own blocked
+  test POST to 127.0.0.1). IndexedDB `/prospector/*` (bones, config,
+  savegames, summary) deleted on ruzzoli.de afterwards.
+- **Open**: the tree year 2008 comes from `README.txt`'s "© 2008-2014"
+  only; cross-check the first release date in stage 8. No walkthrough known.
+
+Next: **stage 8 (shrine)**. Material: `Manual.pdf` (1.1, 2014) and
+`doc/Manual.pdf` (1.0, 2011), `README.txt` (zlib licence + credits),
+`changelog.txt` (upstream change log), game data in `data/` for stats; no
+walkthrough in the repo (search RogueBasin / the old prospector.at copies on
+web.archive.org). Card image for the og block: `roguelikes/prospector.png`.
