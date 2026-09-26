@@ -474,6 +474,61 @@ Next: **stage 6 (docs + sound)**. What stage 6 needs:
   the shipped 2011 `doc/Manual.pdf`; the key lists in Help are current either
   way. The memmaker/prospector link in Help is dead until stage 7.
 
+### Polish before stage 7 (done)
+
+- **Auto-reload at game end** (`4e28271`): `rv_gameover` → `Module.rvGameOver`
+  (`web/prospector.js`) now syncs IndexedDB and reloads by itself after 1.5 s;
+  the page no longer waits for a key. Tested: title `h` + Enter (Quit) →
+  reload with no further key; in-game `q` `y` → Farewell (Space) → "last
+  messages?" `n` → summary Esc → "save summary?" `n` → high scores Esc →
+  reload, no further key (twice, once per build).
+- **Map follows the ship** (`dd5115c`): `rv_webui` (`kbinput.bas`) sends the
+  ship (space: `player.c - player.osx/osy`) or away team (planet/station:
+  `awayteam.c - calcosx(...)`) cell centre in map-part pixels as two more
+  `rv_regions` arguments (`layout[6..7]`, kept for nested prompts); the page
+  calls `RvipWM.center` with it (clamped; centred when the window is larger).
+  Tested at 1024×768 with the default split (Map window 712 px, map part
+  984 px): start at the east edge → view −272 px (ship visible, before: −136,
+  ship off-screen); flew west → −184, −136, −16, 0 at the west edge.
+- **Prompt line over the map** (`c3b5084`): `rv_onmap` (`types.bas`) = the
+  main screen is what is on screen: set at the main prompts and by
+  `display_stars` / `display_awayteam`, cleared by every `Cls` (the keyword is
+  `#Undef`ined and `#Define`d to `rv_cls`, types.bas), by `menu()` right
+  before its `keyin`, and by `textbox()` over the map part (x < `sidebar`; the
+  sidebar's textboxes don't count). A nested `keyin` while it is 1 sends
+  `ask=1` (`layout[8]`); the page keeps Map/Status/Messages and shows the
+  last message in `RvipWM.prompt` over Map (`wait(!ask)`). No per-call-site
+  code: `askyn`, `dprint "Which direction?"` + `keyin` and the docking waits
+  all go through it. Tested: "Do you really want to quit? (y/n)" and "Which
+  direction?" (probe) over the map, windows kept, prompt gone after the
+  answer; "A cheerful sign welcomes you…" wait after docking at a small
+  station also over the map. Pop-up kept: probe item list (textbox over the
+  map), logbook, Enter menu, Spacestation-2 menu, the death
+  screen's "last messages?" (background image = Cls).
+- **Map bound + memory** (`45b1942`): `rv_nomaps(n)` (`math.bas`) returns -1
+  and prints "There is no room for another map in this sector." when
+  `lastplanet+n > max_maps`. There is no shared add-a-map path (65
+  `lastplanet+=1` sites); the seven functions that add maps without a bound
+  ask it first: `make_drifter` (bg≠0, and the extra level of ship 20),
+  `resolve_fight` (wreck), `ep_gives` (quest 23 ship), `asteroid_mining`
+  (dwarf planet), `give_quest` (missing battleship), `make_eventplanet` (up
+  to 2), `fixstarmap`. Also fixed: `fixstarmap`'s `p(2048)` is indexed by
+  planet numbers up to `max_maps` → `p(max_maps)`. The generation sites
+  (`make_special_planet` etc.) stay unchecked: bounded by the sector size.
+  `planets()` is now `ReDim Shared` (heap, 260 MB), so `web/build.sh` links
+  with `INITIAL_MEMORY=128MB` (wasm-ld needs 90 MB incl. the 8 MB stack) + `ALLOW_MEMORY_GROWTH`,
+  `MAXIMUM_MEMORY=1GB`. Tested: native ASan (fresh run dir, keys `n` +
+  new game + talents "Change mapsize" 255/255/150/20, then seed 3 × 3000
+  random keys): no ASan errors, only the known UBSan float→int conversions;
+  browser: new game with the same maximum sector, flew around, no console
+  errors.
+- **Open**: memory still grows to ~402 MB at start (the `ReDim` runs at
+  module init); only the reservation moved from the wasm image to the heap.
+  Lazy growth would need `planets()` grown at all 65 add sites. The map
+  camera follows the ship, not a targeting cursor. `gettext`/`getnumber`
+  (typed input) do not poll `keyin`, so the page keeps the previous layout
+  while one is open. Test databases `/prospector/*` deleted.
+
 Next: **stage 7 (publish)**. What stage 7 needs:
 - Repo: `gh repo create memmaker/prospector --public --source . --remote
   memmaker --push` (orchestrator). History is already clean: `7aba66b` = svn
