@@ -136,7 +136,19 @@ void rv_sound(int n, int vol) {
   if (n < 1 || n > 12 || !name[n]) return;
   EM_ASM({ if (Module.rvSound) Module.rvSound($0, $1); }, name[n], vol);
 }
+/* RVIP stage 9: one finished run -> /roguelikes/beacon through the page's retry
+   outbox (RvipWM.report); fields built in highscore.bas rv_endrun */
+EM_JS(void, rv_beacon, (const char *ev, const char *name, const char *killer, int depth, int score, unsigned turns), {
+  try {
+    var e = encodeURIComponent, k = UTF8ToString(killer);
+    var q = 'g=prospector&ev=' + e(UTF8ToString(ev)) + '&name=' + e(UTF8ToString(name)) +
+      (k ? '&killer=' + e(k) : '') + '&depth=' + depth + '&score=' + score + '&turns=' + (turns >>> 0);
+    if (window.RvipWM && RvipWM.report) RvipWM.report(q);
+    else fetch('/roguelikes/beacon?' + q, { keepalive: true, mode: 'no-cors' }).catch(function () {});
+  } catch (x) {}
+});
 #else
+void rv_beacon(const char *ev, const char *name, const char *killer, int depth, int score, unsigned turns) {}
 void rv_sound(int n, int vol) {}
 void rv_msg(const char *s, int rgb, int rep) {}
 void rv_inv(const char *s) {}

@@ -172,6 +172,7 @@ function death_message() as short
     dim as string text,text2
     dim as short b,a,wx,tx
     text=""
+    if player.dead<99 then rv_endrun 'RVIP: graveyard/leaderboard beacon (99 = saved, not ended)
     
     if not fileexists("summary/"&player.desig &".png") then screenshot(3)
     cls
@@ -601,3 +602,38 @@ function get_death() as string
     death=death &" after "&display_time(player.turn,2) &"."
     return death
 end function
+
+'RVIP stage 9: report the finished run (win = retired, quit = q y, rest = death)
+sub rv_endrun()
+    dim as string ev,k,nm
+    dim as integer s,d,a
+    if player.dead=98 then
+        ev="win"
+    elseif player.dead=6 then
+        ev="quit"
+    else
+        ev="death"
+        if player.dead=3 or player.dead=25 then
+            k=player.killedby
+        else
+            k=get_death()
+            a=instrrev(k," after ")
+            if a>0 then k=left(k,a-1)
+        endif
+        k=trim(k,any " .")
+        if lcase(left(k,2))="a " then
+            k=mid(k,3)
+        elseif lcase(left(k,3))="an " then
+            k=mid(k,4)
+        elseif lcase(left(k,4))="the " then
+            k=mid(k,5)
+        endif
+    endif
+    if player.score=0 then s=score() else s=player.score
+    for a=0 to laststar 'depth = star systems discovered (no dungeon depth in space)
+        if map(a).discovered=1 then d+=1
+    next
+    nm=trim(crew(1).n)
+    if nm="" then nm=player.desig
+    rv_beacon(ev,nm,k,d,s,player.turn)
+end sub

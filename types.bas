@@ -226,6 +226,8 @@ Declare Sub rv_regions Cdecl Alias "rv_regions" (ByVal mode As Long, ByVal mw As
 Declare Sub rv_msg Cdecl Alias "rv_msg" (ByVal s As ZString Ptr, ByVal rgb As Long, ByVal rep As Long)
 Declare Sub rv_inv Cdecl Alias "rv_inv" (ByVal s As ZString Ptr)
 Declare Sub rv_gameover Cdecl Alias "rv_gameover" ()
+Declare Sub rv_beacon Cdecl Alias "rv_beacon" (ByVal ev As ZString Ptr, ByVal nm As ZString Ptr, ByVal k As ZString Ptr, ByVal d As Long, ByVal s As Long, ByVal t As ULong)
+Declare Sub rv_endrun()
 Declare Sub rv_sound Cdecl Alias "rv_sound" (ByVal n As Long, ByVal vol As Long)
 Declare Sub rv_webui(rvmode As Short)
 Declare Function rv_nomaps(n As Short) As Short
