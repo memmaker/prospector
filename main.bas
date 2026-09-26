@@ -170,7 +170,7 @@ Do
     EndIf
 
     If a=7 Then
-        rv_gameover 'RVIP: web page waits for a key and reloads (no-op natively)
+        rv_gameover 'RVIP: web page saves and reloads (no-op natively)
         End
     EndIf
 
@@ -187,7 +187,7 @@ Loop Until configflag(con_restart)=1
 #IfDef _FMODSOUND
 fSOUND_close
 #EndIf
-rv_gameover 'RVIP: web page waits for a key and reloads (no-op natively)
+rv_gameover 'RVIP: web page saves and reloads (no-op natively)
 End
 
 Function start_new_game() As Short

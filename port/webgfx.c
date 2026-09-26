@@ -119,7 +119,7 @@ void rv_msg(const char *s, int rgb, int rep) {
 void rv_inv(const char *s) {
   EM_ASM({ if (Module.rvInv) Module.rvInv($0); }, s);
 }
-/* the game is over (before its END): the page waits for a key, saves and
+/* the game is over (before its END, after its own last key): the page saves and
    reloads for a new game; exit() never runs (no EXIT_RUNTIME, RVIP W5) */
 void rv_gameover(void) {
   EM_ASM({ if (Module.rvGameOver) Module.rvGameOver(); });

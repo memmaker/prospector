@@ -130,22 +130,19 @@
 			box.appendChild(d);
 		});
 	}
+	/* the game took its own last key (high scores, "Till next time!", title
+	   Quit): save and reload into the title menu, no page key (RVIP W5) */
 	function rvGameOver() {
-		ended = true;
-		syncFiles();
-		status('The game has ended. Press any key for a new game.');
+		if (ended) return;
+		ended = true; running = false;
+		status('The game has ended. Starting a new one…');
+		syncFiles(function () { setTimeout(function () { location.reload(); }, 1500); });
 	}
 
 	/* ---------- input ---------- */
 	function onKey(e) {
 		if (!$('help').hidden) {
 			if (e.key === 'Escape') { $('help').hidden = true; e.preventDefault(); }
-			return;
-		}
-		if (ended) {   /* game over: save, reload into a new game (RVIP W5) */
-			if (e.metaKey || e.ctrlKey || e.altKey || /^(Shift|Control|Alt|Meta)$/.test(e.key)) return;
-			ended = false; running = false; e.preventDefault();
-			syncFiles(function () { location.reload(); });
 			return;
 		}
 		if (!running || e.isComposing || e.metaKey) return;
