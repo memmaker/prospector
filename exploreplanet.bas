@@ -419,8 +419,8 @@ Function ep_rvfrontier(x As Short,y As Short,slot As Short,move As Short,candida
 End Function
 
 Function ep_rvstairs(slot As Short,Key As String,ByRef nextmap As _cords) As Short
-    'RVIP: < / > off a portal: walk to the nearest known stairs/tunnel/portal and take it on arrival (walking=13).
-    'None known: < walks to the ship and launches there.
+    'RVIP: < / > off a portal: walk to the nearest known stairs/tunnel/portal (walking=13); pressing the key again there takes it.
+    'None known: < walks to the ship (at the ship it launches).
     Dim As Short b,i,last
     Dim As Single d=9999
     Dim As _cords p,t,path(1283)
