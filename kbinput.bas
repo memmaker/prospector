@@ -697,7 +697,6 @@ function rv_cmdmenu(allowed as string, mode as short) as string
     dim as string mt(4),mk(4)
     dim as short g,a,bg
     mt(1)="Move and explore": mt(2)="Actions": mt(3)="Ship and crew": mt(4)="Game"
-    rv_cmdadd(mt(1),mk(1),key_walk,"walk in a direction",allowed)
     rv_cmdadd(mt(1),mk(1),key_wait,"wait",allowed)
     if mode=1 then
         rv_cmdadd(mt(1),mk(1),key_autoexplore,"explore: fly to an unvisited system (also ~)",allowed)
