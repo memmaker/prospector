@@ -25,7 +25,7 @@
 
 	var running = false, ended = false, wantSaveFlag = false, lastSave = 0;
 	var off, offCtx, img = null, serial = -1, full = true, wm = null;
-	var LAYOUT = ROOT + '/config/web-layout.json', L = { scale: 0, sscale: 1, font: 13, wm: null, sound: false }, auto = true;
+	var LAYOUT = ROOT + '/config/web-layout.json', L = { scale: 0, sscale: 1, fs: {}, wm: null, sound: false }, auto = true;
 	var cvs = {};   /* id -> { cv, ctx } : map, stat, pop */
 
 	function $(id) { return document.getElementById(id); }
@@ -81,17 +81,18 @@
 		requestAnimationFrame(frame);
 	}
 	function saveLayout() {
-		try { Module.FS.writeFile(LAYOUT, JSON.stringify({ scale: auto ? 0 : L.scale, sscale: L.sscale, font: L.font, wm: L.wm, sound: L.sound })); syncFiles(); } catch (e) { }
+		try { Module.FS.writeFile(LAYOUT, JSON.stringify({ scale: auto ? 0 : L.scale, sscale: L.sscale, fs: L.fs, wm: L.wm, sound: L.sound })); syncFiles(); } catch (e) { }
 	}
 	function zoom(d) {
 		auto = false;
 		L.scale = Math.max(1, Math.min(4, (L.scale || 1) + d));
 		saveLayout(); draw(true);
 	}
-	function fonts() { $('msg').style.fontSize = $('inv').style.fontSize = L.font + 'px'; }
+	function fs(id) { return L.fs[id] || 13; }
+	function fonts() { $('msg').style.fontSize = fs('msg') + 'px'; $('inv').style.fontSize = fs('inv') + 'px'; }
 	/* windows: the shared tiling window manager (rvip-wm.js, RVIP W4) */
 	function makeWM() {
-		try { var s = JSON.parse(Module.FS.readFile(LAYOUT, { encoding: 'utf8' })); if (s) { L.scale = s.scale | 0; L.sscale = s.sscale || 1; L.font = s.font || 13; L.wm = s.wm || null; L.sound = !!s.sound; } } catch (e) { }
+		try { var s = JSON.parse(Module.FS.readFile(LAYOUT, { encoding: 'utf8' })); if (s) { L.scale = s.scale | 0; L.sscale = s.sscale || 1; L.fs = s.fs || { msg: s.font, inv: s.font }; L.wm = s.wm || null; L.sound = !!s.sound; } } catch (e) { }
 		auto = !L.scale;
 		soundLabel();
 		fonts();
@@ -106,10 +107,10 @@
 			font: function (id, d) {
 				if (id === 'map') return zoom(d);
 				if (id === 'stat') L.sscale = Math.max(1, Math.min(4, L.sscale + d));
-				else L.font = Math.max(8, Math.min(28, L.font + d));
+				else L.fs[id] = Math.max(8, Math.min(28, fs(id) + d));   /* each window its own size */
 				fonts(); saveLayout(); draw(true);
 			},
-			onReset: function () { auto = true; L.scale = 0; L.sscale = 1; L.font = 13; L.wm = wm.state(); fonts(); saveLayout(); draw(true); }
+			onReset: function () { auto = true; L.scale = 0; L.sscale = 1; L.fs = {}; L.wm = wm.state(); fonts(); saveLayout(); draw(true); }
 		});
 		wm.apply();
 	}
