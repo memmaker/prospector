@@ -34,6 +34,6 @@ emcc $CFLAGS web/build/game.o web/build/webgfx.o web/build/fbdir.o "$LIB/libfbgf
   --pre-js port/fbstub.js --preload-file web/build/pack@/pack \
   $EXTRA_LDFLAGS -o web/dist/prospector-core.js
 python3 web/make-help.py > web/dist/help.html
-cp web/index.html web/prospector.js "$HOME/Games/rvip-tools/web/rvip-wm.js" "$HOME/Games/rvip-tools/web/rvip-sound.js" web/dist/
+cp web/index.html web/prospector.js web/dist/
 rm -rf web/dist/sound && mkdir web/dist/sound && cp data/*.wav web/dist/sound/
 cp Manual.pdf web/dist/Manual.pdf
