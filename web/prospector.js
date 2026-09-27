@@ -132,7 +132,11 @@
 	function rvSound(p, vol) { if (L.sound && vol > 0) RVIPSound.play([latin1(p)], Math.min(1, vol / 2)); }
 	/* from the game (port/webgfx.c): messages, inventory, game end */
 	var invText = null, lastMsg = '';
-	function rvMsg(p, rgb, rep) { lastMsg = latin1(p); RvipWM.log($('msg'), { t: lastMsg, color: hexcol(rgb) }, !!rep); }
+	function rvMsg(p, rgb, rep) {
+		lastMsg = latin1(p);
+		RvipWM.log($('msg'), { t: lastMsg, color: hexcol(rgb) }, !!rep);
+		var body = $('msg').parentNode; body.scrollTop = body.scrollHeight;   /* the newest message stays in view */
+	}
 	function rvInv(p) {
 		var t = latin1(p);
 		if (t === invText) return;
