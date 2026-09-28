@@ -201,36 +201,24 @@
 		});
 		return out;
 	}
-	function b64(u8) { var s = ''; for (var i = 0; i < u8.length; i++) s += String.fromCharCode(u8[i]); return btoa(s); }
-	function unb64(s) { var b = atob(s), u = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; }
-	/* Export save: every user file as one JSON bundle (written to /tmp for rvip-app.js) */
-	var BUNDLE = '/tmp/prospector-save.json', backup = null;
+	/* Export save: every user file as one JSON bundle {'/savegames/x.sav': base64} (rvip-app.js) */
+	var backup = null;
 	app = RvipApp({
 		name: 'prospector',
-		save: function () {
-			var files = userFiles(), bundle = {};
-			if (!files.length) return null;
-			files.forEach(function (f) { bundle[f] = b64(Module.FS.readFile(ROOT + f)); });
-			Module.FS.writeFile(BUNDLE, JSON.stringify(bundle));
-			return BUNDLE;
-		},
+		save: function () { return userFiles().map(function (f) { return ROOT + f; }); },
+		root: ROOT,
 		/* New game, Import save: delete the user files (kept here until an import is known to be good) */
 		clear: function () {
 			backup = userFiles().map(function (f) { return [f, Module.FS.readFile(ROOT + f)]; });
 			backup.forEach(function (e) { Module.FS.unlink(ROOT + e[0]); });
 		},
-		put: function (file, data) {
-			var bundle;
-			try { bundle = JSON.parse(new TextDecoder().decode(data)); } catch (e) { bundle = null; }
-			if (!bundle || typeof bundle !== 'object') {
+		put: function (file, data) {   /* once per bundle entry, file.name = '/savegames/x.sav' */
+			var m = /^\/(\w+)\/([^\/\\]+)$/.exec(file.name);
+			if (!m || DIRS.indexOf(m[1]) < 0 || m[2] === '..') {
 				(backup || []).forEach(function (e) { Module.FS.writeFile(ROOT + e[0], e[1]); });
 				return 'Not a Prospector save bundle.';
 			}
-			Object.keys(bundle).forEach(function (f) {
-				var m = /^\/(\w+)\/([^\/\\]+)$/.exec(f);
-				if (!m || DIRS.indexOf(m[1]) < 0 || m[2] === '..') return;
-				Module.FS.writeFile(ROOT + f, unb64(bundle[f]));
-			});
+			Module.FS.writeFile(ROOT + file.name, data);
 		}
 	});
 	function autosave() {
