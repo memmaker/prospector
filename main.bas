@@ -1223,13 +1223,13 @@ Function explore_space() As Short
             player=move_ship(Key)
             'RVIP: explore / > in space; land or dock when a > walk arrives
             If walking=0 And rv_spend<>"" Then
-                If player.c.x=rv_spendc.x And player.c.y=rv_spendc.y Then Key=rv_spend
+                If player.c.x=rv_spendc.x And player.c.y=rv_spendc.y Then dprint "Arrived. Press > again to "&iif(rv_spend=key_dock,"dock.","land.")
                 rv_spend=""
             EndIf
             If Key="~" Then Key=key_autoexplore
             If Key=key_autoexplore Then Key=rv_spacewalk(0)
             If Key=">" Then Key=rv_spacewalk(1)
-            If Key="<" Then dprint "In space: > flies to the nearest known planet or station and lands/docks, "&key_autoexplore &" flies to the nearest unvisited system."
+            If Key="<" Then dprint "In space: > flies to the nearest known planet or station (press it again there to land/dock), "&key_autoexplore &" flies to the nearest unvisited system."
 
             planetcom=0
             fleetcom=0
@@ -2373,9 +2373,9 @@ EndIf
                             If awayteam.movetype>=tmap(apwaypoints(currapwp).x,apwaypoints(currapwp).y).walktru Or tmap(apwaypoints(currapwp).x,apwaypoints(currapwp).y).onopen<>0 Then
                                 awayteam.c=apwaypoints(currapwp)
                                 awayteam.c.m=old.m
-                                If walking=13 And currapwp>=lastapwp Then 'RVIP: arrived, take the stairs / launch
+                                If walking=13 And currapwp>=lastapwp Then 'RVIP: arrived; the player presses < / > again to take the stairs / launch
                                     walking=0
-                                    Key=rv_pend
+                                    If rv_pend=key_la Then dprint "At the ship. Press < again to launch." Else dprint "Arrived. Press < or > again to use it."
                                     rv_pend=""
                                 EndIf
                             Else

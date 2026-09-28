@@ -37,3 +37,6 @@ python3 web/make-help.py > web/dist/help.html
 cp web/index.html web/prospector.js web/dist/
 rm -rf web/dist/sound && mkdir web/dist/sound && cp data/*.wav web/dist/sound/
 cp Manual.pdf web/dist/Manual.pdf
+# text fonts: the index page's fonts/ (served at ../fonts/ next to the games)
+FONTS=${FONTS:-$HOME/Games/roguelikes-index/fonts}
+(cd "$FONTS" 2>/dev/null && ls *.woff | sed 's/\.woff$//') | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read().split()))' > web/dist/fonts.json

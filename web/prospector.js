@@ -25,7 +25,7 @@
 
 	var running = false, ended = false, wantSaveFlag = false, lastSave = 0;
 	var off, offCtx, img = null, serial = -1, full = true, wm = null;
-	var LAYOUT = ROOT + '/config/web-layout.json', L = { scale: 0, sscale: 1, fs: {}, wm: null, sound: false }, auto = true;
+	var LAYOUT = ROOT + '/config/web-layout.json', L = { scale: 0, sscale: 1, fs: {}, face: '', wm: null, sound: false }, auto = true;
 	var cvs = {};   /* id -> { cv, ctx } : map, stat, pop */
 
 	function $(id) { return document.getElementById(id); }
@@ -81,7 +81,7 @@
 		requestAnimationFrame(frame);
 	}
 	function saveLayout() {
-		try { Module.FS.writeFile(LAYOUT, JSON.stringify({ scale: auto ? 0 : L.scale, sscale: L.sscale, fs: L.fs, wm: L.wm, sound: L.sound })); syncFiles(); } catch (e) { }
+		try { Module.FS.writeFile(LAYOUT, JSON.stringify({ scale: auto ? 0 : L.scale, sscale: L.sscale, fs: L.fs, face: L.face, wm: L.wm, sound: L.sound })); syncFiles(); } catch (e) { }
 	}
 	function zoom(d) {
 		auto = false;
@@ -89,13 +89,24 @@
 		saveLayout(); draw(true);
 	}
 	function fs(id) { return L.fs[id] || 13; }
-	function fonts() { $('msg').style.fontSize = fs('msg') + 'px'; $('inv').style.fontSize = fs('inv') + 'px'; }
+	function fonts() {
+		['msg', 'inv'].forEach(function (id) { var e = $(id); e.style.fontSize = fs(id) + 'px'; e.style.fontFamily = L.face ? '"' + L.face + '", monospace' : ''; });
+	}
+	/* text font for Messages and Inventory: a face from the index page's
+	   fonts/ (web/build.sh lists them in fonts.json); the map and Status are
+	   the game's own bitmap screen */
+	function loadFace(n) {
+		if (!n) { fonts(); return; }
+		var ff = new FontFace(n, 'url(../fonts/' + n + '.woff)');
+		ff.load().then(function () { document.fonts.add(ff); fonts(); }).catch(function () { status('Could not load the font ' + n + '.', true); });
+	}
 	/* windows: the shared tiling window manager (rvip-wm.js, RVIP W4) */
 	function makeWM() {
-		try { var s = JSON.parse(Module.FS.readFile(LAYOUT, { encoding: 'utf8' })); if (s) { L.scale = s.scale | 0; L.sscale = s.sscale || 1; L.fs = s.fs || { msg: s.font, inv: s.font }; L.wm = s.wm || null; L.sound = !!s.sound; } } catch (e) { }
+		try { var s = JSON.parse(Module.FS.readFile(LAYOUT, { encoding: 'utf8' })); if (s) { L.scale = s.scale | 0; L.sscale = s.sscale || 1; L.fs = s.fs || { msg: s.font, inv: s.font }; L.wm = s.wm || null; L.sound = !!s.sound; L.face = typeof s.face === 'string' ? s.face : ''; } } catch (e) { }
 		auto = !L.scale;
 		soundLabel();
-		fonts();
+		$('sel-font').value = L.face;
+		loadFace(L.face);
 		wm = RvipWM({
 			area: $('game'), menu: $('btn-layout'),
 			wins: [{ id: 'map', title: 'Map' }, { id: 'msg', title: 'Messages' }, { id: 'stat', title: 'Status' }, { id: 'inv', title: 'Inventory' }],
@@ -117,12 +128,16 @@
 	/* Sound: the game decides what plays (rv_sound at each of its play sites,
 	   port/webgfx.c names data/<name>.wav); this button is the real switch,
 	   off by default, kept in web-layout.json. */
-	function soundLabel() { $('btn-sound').classList.toggle('on', L.sound); }
-	function toggleSound() { L.sound = !L.sound; soundLabel(); saveLayout(); }
+	function soundLabel() { $('chk-sound').checked = L.sound; }
+	function toggleSound() { L.sound = $('chk-sound').checked; saveLayout(); }
 	function rvSound(p, vol) { if (L.sound && vol > 0) RVIPSound.play([latin1(p)], Math.min(1, vol / 2)); }
 	/* from the game (port/webgfx.c): messages, inventory, game end */
 	var invText = null, lastMsg = '';
-	function rvMsg(p, rgb, rep) { lastMsg = latin1(p); RvipWM.log($('msg'), { t: lastMsg, color: hexcol(rgb) }, !!rep); }
+	function rvMsg(p, rgb, rep) {
+		lastMsg = latin1(p);
+		RvipWM.log($('msg'), { t: lastMsg, color: hexcol(rgb) }, !!rep);
+		var body = $('msg').parentNode; body.scrollTop = body.scrollHeight;   /* the newest message stays in view */
+	}
 	function rvInv(p) {
 		var t = latin1(p);
 		if (t === invText) return;
@@ -340,10 +355,16 @@
 		$('btn-import').onclick = function () { $('import-file').click(); };
 		$('import-file').onchange = function () { if (this.files[0]) importSave(this.files[0]); this.value = ''; };
 		$('btn-new').onclick = newGame;
-		$('btn-zoom-in').onclick = function () { zoom(1); };
-		$('btn-zoom-out').onclick = function () { zoom(-1); };
 		$('btn-tiles').onclick = toggleTiles;
-		$('btn-sound').onclick = toggleSound;
+		$('chk-sound').onchange = toggleSound;
+		RvipWM.dropdown($('btn-file'), $('menu-file'));
+		RvipWM.dropdown($('btn-audio'), $('menu-audio'));
+		fetch('fonts.json').then(function (r) { return r.json(); }).then(function (list) {
+			var sel = $('sel-font');
+			list.forEach(function (n) { var o = document.createElement('option'); o.value = n; o.textContent = n.replace(/^Web(Plus|437)_/, '').replace(/_/g, ' '); sel.appendChild(o); });
+			sel.value = L.face || '';
+		}).catch(function () { });
+		$('sel-font').onchange = function () { L.face = this.value; saveLayout(); loadFace(L.face); this.blur(); };
 		document.querySelectorAll('button').forEach(function (b) {
 			b.addEventListener('mousedown', function (e) { e.preventDefault(); });
 		});

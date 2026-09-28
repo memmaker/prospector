@@ -697,11 +697,10 @@ function rv_cmdmenu(allowed as string, mode as short) as string
     dim as string mt(4),mk(4)
     dim as short g,a,bg
     mt(1)="Move and explore": mt(2)="Actions": mt(3)="Ship and crew": mt(4)="Game"
-    rv_cmdadd(mt(1),mk(1),key_walk,"walk in a direction",allowed)
     rv_cmdadd(mt(1),mk(1),key_wait,"wait",allowed)
     if mode=1 then
         rv_cmdadd(mt(1),mk(1),key_autoexplore,"explore: fly to an unvisited system (also ~)",allowed)
-        rv_cmdadd(mt(1),mk(1),">","fly to the nearest planet or station and land or dock",allowed)
+        rv_cmdadd(mt(1),mk(1),">","fly to the nearest planet or station (again: land or dock)",allowed)
         rv_cmdadd(mt(1),mk(1),"<","about < and > in space",allowed)
         rv_cmdadd(mt(1),mk(1),key_la,"land on a planet or enter a wormhole",allowed)
         rv_cmdadd(mt(1),mk(1),key_tala,"land at a chosen spot",allowed)
@@ -715,8 +714,8 @@ function rv_cmdmenu(allowed as string, mode as short) as string
         rv_cmdadd(mt(2),mk(2),key_optequip,"armor choice for the away team",allowed)
     else
         rv_cmdadd(mt(1),mk(1),key_autoexplore,"autoexplore (also ~)",allowed)
-        rv_cmdadd(mt(1),mk(1),"<","go up: stairs or portal, else walk to the ship and launch",allowed)
-        rv_cmdadd(mt(1),mk(1),">","go down: nearest known stairs, tunnel or portal",allowed)
+        rv_cmdadd(mt(1),mk(1),"<","go up: walk to stairs, portal or the ship (again: use it)",allowed)
+        rv_cmdadd(mt(1),mk(1),">","go down: walk to known stairs, tunnel or portal (again: use it)",allowed)
         rv_cmdadd(mt(1),mk(1),key_la,"launch (at the ship)",allowed)
         if awayteam.movetype>=2 then rv_cmdadd(mt(1),mk(1),key_ju,"jetpack jump",allowed)
         if awayteam.teleportrange>0 then rv_cmdadd(mt(1),mk(1),key_te,"teleport",allowed)

@@ -225,7 +225,7 @@ end function
 
 function rv_spacewalk(mode as short) as string
     'RVIP: mode 0 (#): autopilot to the nearest seen, unvisited system or wormhole.
-    'mode 1 (>): to the nearest known system or station, then land/dock on arrival (rv_spend).
+    'mode 1 (>): to the nearest known system or station, the player presses > again there to land/dock (rv_spend = which).
     dim as short a
     dim as single d=99999
     dim as string act
