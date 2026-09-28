@@ -183,7 +183,7 @@
 		var on = true;
 		try { on = !/^tiles:1/m.test(Module.FS.readFile(ROOT + '/config/config.txt', { encoding: 'utf8' })); } catch (e) { }
 		var b = $('btn-tiles');
-		b.textContent = on ? 'Tiles' : 'Text'; b.classList.toggle('on', on);
+		b.textContent = 'Tiles: ' + (on ? 'Prospector' : 'None');   /* the game's own set; None = its ASCII mode */
 	}
 	function toggleTiles() {
 		if (!app.running) return;
