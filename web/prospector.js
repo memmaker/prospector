@@ -286,9 +286,9 @@
 		$('chk-sound').onchange = toggleSound;
 		RvipWM.dropdown($('btn-file'), $('menu-file'));
 		RvipWM.dropdown($('btn-audio'), $('menu-audio'));
-		fetch('fonts.json').then(function (r) { return r.json(); }).then(function (list) {
+		RvipWM.fonts.then(function (list) {
 			var sel = $('sel-font');
-			list.forEach(function (n) { var o = document.createElement('option'); o.value = n; o.textContent = n.replace(/^Web(Plus|437)_/, '').replace(/_/g, ' '); sel.appendChild(o); });
+			RvipWM.fontOptions(sel);
 			sel.value = L.face || '';
 		}).catch(function () { });
 		$('sel-font').onchange = function () { L.face = this.value; saveLayout(); loadFace(L.face); this.blur(); };
