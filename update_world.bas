@@ -14,11 +14,11 @@ function update_world(location as short) as short
         cure_awayteam(location)
         
         for a=0 to laststar
-            if map(a).planets(1)>0 then
-                if planets(map(a).planets(1)).flags(27)=2 then
-                    planets(map(a).planets(1)).death-=1
-                    if planets(map(a).planets(1)).death<=0 then
-                        map(a).planets(1)=0
+            if map(a).plnum(1)>0 then
+                if planets(map(a).plnum(1)).flags(27)=2 then
+                    planets(map(a).plnum(1)).death-=1
+                    if planets(map(a).plnum(1)).death<=0 then
+                        map(a).plnum(1)=0
                     endif
                 endif
             endif

@@ -211,9 +211,9 @@ Function start_new_game() As Short
             text=map(a).spec &";"
             For b=1 To 9
                 text=text &";"
-                If map(a).planets(b)>0 And map(a).planets(b)<1024 Then
-                    makeplanetmap(map(a).planets(b),b,map(a).spec)
-                    text=text &planets(map(a).planets(b)).temp
+                If map(a).plnum(b)>0 And map(a).plnum(b)<1024 Then
+                    makeplanetmap(map(a).plnum(b),b,map(a).spec)
+                    text=text &planets(map(a).plnum(b)).temp
                 EndIf
             Next
             Print #f,text
@@ -1315,10 +1315,10 @@ Function explore_space() As Short
                     If Key=key_la Or Key=key_tala Then
                         a=getplanet(pl)
                         If a>0 Then
-                            b=map(pl).planets(a)
+                            b=map(pl).plnum(a)
                             If is_gasgiant(b)=0 And b>0 Then
-                                If Key=key_la Then landing(map(pl).planets(a))
-                                If Key=key_tala Then target_landing(map(pl).planets(a))
+                                If Key=key_la Then landing(map(pl).plnum(a))
+                                If Key=key_tala Then target_landing(map(pl).plnum(a))
                             Else
                                 If is_gasgiant(b)=0 Then
                                     dprint"You don't find anything big enough to land on"
@@ -3079,9 +3079,9 @@ Function wormhole_travel() As Short
         If player.c.x=map(a).c.x And player.c.y=map(a).c.y Then
             pl=a
         Else
-            If distance(map(map(a).planets(1)).c,player.c)<d Then
+            If distance(map(map(a).plnum(1)).c,player.c)<d Then
                 near=a
-                d=distance(map(map(a).planets(1)).c,player.c)
+                d=distance(map(map(a).plnum(1)).c,player.c)
             EndIf
         EndIf
     Next
@@ -3105,19 +3105,19 @@ Function wormhole_travel() As Short
     EndIf
     If pl>1 Then
         player.towed=0
-        If map(pl).planets(2)=0 And whtravelled<101 Then whtravelled+=3
-        map(pl).planets(2)=1
+        If map(pl).plnum(2)=0 And whtravelled<101 Then whtravelled+=3
+        map(pl).plnum(2)=1
         If artflag(16)=0 Then
-            b=map(pl).planets(1)
+            b=map(pl).plnum(1)
         Else
             dprint "Wormhole navigation system engaged!(+/- to choose wormhole, "&key_la &" to select)",10
             b=wormhole_navigation
         EndIf
         If b>0 Then
-        If map(b).planets(2)=0 Then
+        If map(b).plnum(2)=0 Then
             ano_money+=CInt(distance(map(b).c,player.c)*5)*natural
         EndIf
-            map(b).planets(2)=1
+            map(b).plnum(2)=1
             dprint "you travel through the wormhole.",10
             #IfDef _FMODSOUND
             If configflag(con_sound)=0 Or configflag(con_sound)=2 Then FSOUND_PlaySound(FSOUND_FREE, Sound(5))
@@ -3378,7 +3378,7 @@ Function move_probes() As Short
                         map(j).discovered=1
                         If askyn("Do you want to direct the probe into the wormhole?(y/n)") Then
                             If skill_test(player.pilot(0),st_hard) Then
-                                t=map(j).planets(1)
+                                t=map(j).plnum(1)
                                 d=distance(map(t).c,probe(i))
                                 probe(i).x=map(t).c.x
                                 probe(i).y=map(t).c.y

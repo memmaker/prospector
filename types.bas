@@ -744,7 +744,7 @@ Type _stars
     spec As Byte
     ti_no As UInteger
     discovered As Byte
-    planets(1 To 9) As Short
+    plnum(1 To 9) As Short 'RVIP: was planets(), now the name of the sparse planets() accessor macro
     desig As ZString*13
     comment As ZString*61
 End Type
@@ -1784,13 +1784,30 @@ Dim Shared lastshare As Short
 reDim Shared spacemap(sm_x,sm_y) As Short
 Dim Shared combatmap(60,20) As Byte
 Dim Shared planetmap(60,20,max_maps) As Short
-ReDim Shared planets(max_maps) As _planet 'RVIP: heap, not static data (260 MB; the web build's initial memory stays small)
+'RVIP: planets() is sparse (all 4097 slots were 260 MB): a slot is allocated as a
+'copy of planet_default on first touch. planets_reset(first,template) frees slots
+'first..max_maps and makes template the new default (replaces the loops that set
+'every slot). Out-of-range numbers get a scratch planet instead of a stray write.
+'The macro also expands after a dot, hence _stars.planets() -> _stars.plnum().
+Dim Shared planet_slot(max_maps) As _planet Ptr
+Dim Shared planet_default As _planet
+Dim Shared planet_scratch As _planet
+Function planet_at(ByVal i As Integer) As _planet Ptr
+    If i<0 Or i>max_maps Then planet_scratch=planet_default: Return @planet_scratch
+    If planet_slot(i)=0 Then planet_slot(i)=New _planet(planet_default)
+    Return planet_slot(i)
+End Function
+Sub planets_reset(ByVal first As Integer, ByRef template As _planet)
+    planet_default=template
+    For i As Integer=first To max_maps
+        If planet_slot(i) Then Delete planet_slot(i): planet_slot(i)=0
+    Next
+End Sub
+#define planets(i) planet_at(i)[0]
 Dim Shared planets_flavortext(max_maps) As String
 Dim Shared civ(3) As _civilisation
 Dim Shared retirementassets(16) As UByte
-For a=0 To max_maps
-    planets(a).darkness=5
-Next
+planet_default.darkness=5 'RVIP: was a loop over all slots
 Dim Shared item(25000) As _items
 Dim Shared lastitem As Integer=-1
 Dim Shared _last_title_pic As Byte=14

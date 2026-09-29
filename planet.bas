@@ -516,7 +516,7 @@ do
         portal(a).col=14
         portal(a).from.s=enter.s
         portal(a).from.m=enter.m
-        'portal(a).from.m=map(portal(a).from.s).planets(portal(a).from.p)
+        'portal(a).from.m=map(portal(a).from.s).plnum(portal(a).from.p)
         portal(a).from.x=x
         portal(a).from.y=y
         portal(a).dest.m=lastplanet
@@ -6332,7 +6332,7 @@ function makemudsshop(slot as short, x1 as short, y1 as short)  as short
     sys=sysfrommap(slot)
     if sys>0 then
         for i=1 to 9
-            if rnd_point(map(sys).planets(i),,262).x>-1 then return -1 'Not more than one mudds shop per system
+            if rnd_point(map(sys).plnum(i),,262).x>-1 then return -1 'Not more than one mudds shop per system
         next
     endif
         
@@ -7485,7 +7485,7 @@ function countasteroidfields(sys as short) as short
     dim as short a,b
     if sys<0 then return 0
     for a=1 to 9
-        if map(sys).planets(a)<0 and is_gasgiant(map(sys).planets(a))=0 then b=b+1
+        if map(sys).plnum(a)<0 and is_gasgiant(map(sys).plnum(a))=0 then b=b+1
     next
     return b
 end function
@@ -7495,7 +7495,7 @@ function countgasgiants(sys as short) as short
     dim as short a,b
     if sys<0 then return 0
     for a=1 to 9
-        if is_gasgiant(map(sys).planets(a))>0 then b=b+1
+        if is_gasgiant(map(sys).plnum(a))>0 then b=b+1
     next
     return b
 end function
@@ -7577,10 +7577,10 @@ function get_nonspecialplanet(disc as short=0) as short
     for a=0 to laststar
         if map(a).discovered=0 or disc=0 then
             for b=1 to 9
-                if map(a).planets(b)>0 and is_special(map(a).planets(b))=0 then
-                    if planetmap(0,0,map(a).planets(b))=0 then
+                if map(a).plnum(b)>0 and is_special(map(a).plnum(b))=0 then
+                    if planetmap(0,0,map(a).plnum(b))=0 then
                         last+=1
-                        pot(last)=map(a).planets(b)
+                        pot(last)=map(a).plnum(b)
                     endif
                 endif
             next
@@ -7599,7 +7599,7 @@ function sysfrommap(a as short)as short
     dim as short b,c,d
     for b=0 to laststar
         for c=1 to 9
-            if map(b).planets(c)=a then return b
+            if map(b).plnum(c)=a then return b
         next
     next
     return -1
@@ -7610,7 +7610,7 @@ function orbitfrommap(a as short) as short
     sys=sysfrommap(a)
     if sys>=0 then
         for b=1 to 9
-            if map(sys).planets(b)=a then return b
+            if map(sys).plnum(b)=a then return b
         next
     endif
     return -1
@@ -7633,14 +7633,14 @@ function get_random_system(unique as short=0,gascloud as short=0,disweight as sh
             if unique=0 then
                 for p=1 to 9
                     for u=0 to lastspecial
-                        if map(a).planets(p)=specialplanet(u) then ad=1
+                        if map(a).plnum(p)=specialplanet(u) then ad=1
                     next
                 next
             endif
             if hasgarden=1 then
                 ad=1
                 for p=1 to 9
-                    if is_gardenworld(map(a).planets(p)) then ad=0
+                    if is_gardenworld(map(a).plnum(p)) then ad=0
                 next
             endif
             if spacemap(map(a).c.x,map(a).c.y)<>0 then cc+=1
@@ -7682,9 +7682,9 @@ function getrandomplanet(s as short) as short
     dim as short a,b,c
     if s>=0 and s<=laststar then
         for a=1 to 9
-            if map(s).planets(a)>0 then
+            if map(s).plnum(a)>0 then
                 b=b+1
-                pot(b)=map(s).planets(a)
+                pot(b)=map(s).plnum(a)
                 
             endif
         next

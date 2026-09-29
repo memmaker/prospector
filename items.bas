@@ -4655,7 +4655,7 @@ function artifact(c as short) as short
         dprint "its a data crystal containing info on one of the systems in this sector"
         d=rnd_range(1,laststar)
         for e=1 to 9
-            if map(d).planets(e)>0 then f=f+1
+            if map(d).plnum(e)>0 then f=f+1
         next
         if map(d).discovered>=1 then
             dprint "But you have already discovered that system."

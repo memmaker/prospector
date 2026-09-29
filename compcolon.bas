@@ -35,10 +35,10 @@ function grow_colonies() as short
     dim  as short i,j
     for i=0 to laststar
         for j=1 to 9
-            if map(i).planets(j)>0 then
-                if planets(map(i).planets(j)).colflag(0)>0 then grow_colony(map(i).planets(j))
-                if rnd_range(1,20)<3+planets(map(i).planets(j)).minerals then planets(map(i).planets(j)).flags(22)+=rnd_range(1,3+planets(map(i).planets(j)).minerals)
-                if rnd_range(1,20)<planets(map(i).planets(j)).flags(22) then planets(map(i).planets(j)).flags(22)=0
+            if map(i).plnum(j)>0 then
+                if planets(map(i).plnum(j)).colflag(0)>0 then grow_colony(map(i).plnum(j))
+                if rnd_range(1,20)<3+planets(map(i).plnum(j)).minerals then planets(map(i).plnum(j)).flags(22)+=rnd_range(1,3+planets(map(i).plnum(j)).minerals)
+                if rnd_range(1,20)<planets(map(i).plnum(j)).flags(22) then planets(map(i).plnum(j)).flags(22)=0
             endif
         next
     next
@@ -277,13 +277,13 @@ function get_com_colon_candidate(st as short) as short
     for a=0 to laststar
         block=-1
         for b=1 to 9
-            if map(a).planets(b)>0 then
+            if map(a).plnum(b)>0 then
                 for c=0 to _NOPB
-                    if map(a).planets(b)=piratebase(c) then block=1
+                    if map(a).plnum(b)=piratebase(c) then block=1
                 next
-                if is_special(map(a).planets(b))=-1 then block=1
-                if planets(map(a).planets(b)).colflag(0)<>0 then block=1
-                if planets(map(a).planets(b)).mapstat<>0 and block=-1 then block=0
+                if is_special(map(a).plnum(b))=-1 then block=1
+                if planets(map(a).plnum(b)).colflag(0)<>0 then block=1
+                if planets(map(a).plnum(b)).mapstat<>0 and block=-1 then block=0
             endif
             
         next
@@ -303,9 +303,9 @@ function get_com_colon_candidate(st as short) as short
     sys=candidate(0)
     pla=-1
     for i=1 to 9
-        if score_planet(map(sys).planets(i),st)>plascore then
-            plascore=score_planet(map(sys).planets(i),st)
-            pla=map(sys).planets(i)
+        if score_planet(map(sys).plnum(i),st)>plascore then
+            plascore=score_planet(map(sys).plnum(i),st)
+            pla=map(sys).plnum(i)
         endif
     next
     
@@ -316,7 +316,7 @@ function score_system(s as short,st as short) as short
     dim as short sscore,i 
     sscore=(1000-distance(map(s).c,basis(st).c)^2)/1000
     for i=1 to 9 
-        sscore+=score_planet(map(s).planets(i),st)
+        sscore+=score_planet(map(s).plnum(i),st)
     next
     return sscore
 end function 

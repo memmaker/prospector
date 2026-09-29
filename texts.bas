@@ -292,7 +292,7 @@ function show_quests() as short
     if player.questflag(7)>0 then
         sys=sysfrommap(player.questflag(7))
         for d=1 to 9
-            if map(sys).planets(d)=player.questflag(7) then p=d
+            if map(sys).plnum(d)=player.questflag(7) then p=d
         next
         txt=txt & "  Map planet in orbit "&p &" in the system at "&map(sys).c.x &":"&map(sys).c.y &"|"
     endif
@@ -383,9 +383,9 @@ function system_text(a as short) as string
     dim as short o,pl,af,gg
     dim t as string
     for o=1 to 9
-        if map(a).planets(o)<>0 then
-            if is_gasgiant(map(a).planets(o)) then gg+=1
-            if is_asteroidfield(map(a).planets(o)) then af+=1
+        if map(a).plnum(o)<>0 then
+            if is_gasgiant(map(a).plnum(o)) then gg+=1
+            if is_asteroidfield(map(a).plnum(o)) then af+=1
             pl+=1
         endif
     next
@@ -1738,16 +1738,16 @@ function exploration_text() as string
     for a=0 to laststar
         if map(a).discovered>0 then exps=exps+1
         for b=1 to 9
-            if map(a).planets(b)>0 then
+            if map(a).plnum(b)>0 then
                 tp+=1
-                if planets(map(a).planets(b)).mapstat<>0 then expp=expp+1
+                if planets(map(a).plnum(b)).mapstat<>0 then expp=expp+1
                 for xx=0 to 60
                     for yy=0 to 20
-                        if planetmap(xx,yy,map(a).planets(b))>0 then expl=expl+1
+                        if planetmap(xx,yy,map(a).plnum(b))>0 then expl=expl+1
                         total=total+1
                     next
                 next
-                if planets(map(a).planets(b)).visited>0 then visited+=1
+                if planets(map(a).plnum(b)).visited>0 then visited+=1
             endif
         next
     next
@@ -1758,9 +1758,9 @@ function exploration_text() as string
     next
     for c=laststar+1 to laststar+wormhole
         if map(c).discovered>0 then wormdis+=1
-        if map(c).planets(2)>0 and map(c).planets(3)=0 then
+        if map(c).plnum(2)>0 and map(c).plnum(3)=0 then
             wormtra+=1
-            map(map(c).planets(1)).planets(3)=-1 'Dont count twice
+            map(map(c).plnum(1)).plnum(3)=-1 'Dont count twice
         endif
     next
 

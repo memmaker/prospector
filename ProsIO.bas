@@ -832,21 +832,21 @@ function display_star(a as short,fbg as byte=0) as short
 
     if map(a).discovered=2 then bg=1
     for p=1 to 9
-        if map(a).planets(p)>0 then
+        if map(a).plnum(p)>0 then
             for n=0 to lastspecial
                 set__color( 11,0)
-                if map(a).planets(p)=specialplanet(n) and planets(map(a).planets(p)).mapstat>0 then
+                if map(a).plnum(p)=specialplanet(n) and planets(map(a).plnum(p)).mapstat>0 then
                     bg=233
                     s=n
                 endif
                 if show_specials>0 or (debug=2 and _debug=1) then
-                    if map(a).planets(p)=specialplanet(n) then
+                    if map(a).plnum(p)=specialplanet(n) then
                         set__color( 11,0)
                         draw string((map(a).c.x-player.osx+1)*_fw1,(map(a).c.y-player.osy+1)*_fh1) ,""&n,,font2
                     endif
                 endif
             next
-            if planets(map(a).planets(p)).colony<>0 then bg=246
+            if planets(map(a).plnum(p)).colony<>0 then bg=246
         endif
     next
     if map(a).discovered<=0 then
@@ -876,7 +876,7 @@ function display_star(a as short,fbg as byte=0) as short
         endif
 
         if map(a).spec=9 then
-            n=distance(map(a).c,map(map(a).planets(1)).c)/5
+            n=distance(map(a).c,map(map(a).plnum(1)).c)/5
             if n<1 then n=1
             if n>6 then n=6
             set__color( 179+n,bg)
@@ -1584,9 +1584,9 @@ function display_system(in as short,forcebar as byte=0,hi as byte=0) as short
     if debug=1 and _debug=1 then
         bl=""
         for a=1 to 9
-            bl=bl &map(in).planets(a)&" "
-            if map(in).planets(a)>0 then
-                bl=bl &"ms:"&map(in).planets(a)
+            bl=bl &map(in).plnum(a)&" "
+            if map(in).plnum(a)>0 then
+                bl=bl &"ms:"&map(in).plnum(a)
             endif
         next
         dprint bl &":"& hi
@@ -1620,8 +1620,8 @@ function display_sysmap(x as short, y as short, in as short, hi as short=0,bl as
     for a=1 to 9
         bg=0
         spec=0
-        if map(in).planets(a)>0 then
-            if is_special(map(in).planets(a)) and planets(map(in).planets(a)).mapstat<>0 then
+        if map(in).plnum(a)>0 then
+            if is_special(map(in).plnum(a)) and planets(map(in).plnum(a)).mapstat<>0 then
                 bg=233
                 spec=1
             endif
@@ -1629,10 +1629,10 @@ function display_sysmap(x as short, y as short, in as short, hi as short=0,bl as
         if hi=a then bg=11
         t=" "
 
-        if map(in).planets(a)<>0 then
+        if map(in).plnum(a)<>0 then
                 ptile=0
                 alp=255
-                if is_gasgiant(map(in).planets(a))<>0 then
+                if is_gasgiant(map(in).plnum(a))<>0 then
                     t="O"
                     if a<6 then
                         set__color( 162,bg)
@@ -1647,57 +1647,57 @@ function display_sysmap(x as short, y as short, in as short, hi as short=0,bl as
                         ptile=1614
                     endif
                 endif
-                if is_asteroidfield(map(in).planets(a))<>0 then
+                if is_asteroidfield(map(in).plnum(a))<>0 then
                     t=chr(176)
                     set__color( 7,bg)
                     ptile=1608
                 endif
-                if is_asteroidfield(map(in).planets(a))=0 and is_gasgiant(map(in).planets(a))=0 and map(in).planets(a)>0 then
+                if is_asteroidfield(map(in).plnum(a))=0 and is_gasgiant(map(in).plnum(a))=0 and map(in).plnum(a)>0 then
                     t="o"
                     ptile=1609
 
-                    if planets(map(in).planets(a)).atmos=0 then planets(map(in).planets(a)).atmos=1
-                    if planets(map(in).planets(a)).mapstat=0 then set__color( 7,bg)
-                    if planets(map(in).planets(a)).mapstat=1 then
+                    if planets(map(in).plnum(a)).atmos=0 then planets(map(in).plnum(a)).atmos=1
+                    if planets(map(in).plnum(a)).mapstat=0 then set__color( 7,bg)
+                    if planets(map(in).plnum(a)).mapstat=1 then
                         alp=197
-                        if planets(map(in).planets(a)).atmos=1 then
+                        if planets(map(in).plnum(a)).atmos=1 then
                             set__color( 15,bg)
                             ptile=1616
                         endif
-                        if planets(map(in).planets(a)).atmos>1 and planets(map(in).planets(a)).atmos<7 then
+                        if planets(map(in).plnum(a)).atmos>1 and planets(map(in).plnum(a)).atmos<7 then
                             set__color( 101,bg)
                             ptile=1619
                         endif
-                        if planets(map(in).planets(a)).atmos>6 and planets(map(in).planets(a)).atmos<12 then
+                        if planets(map(in).plnum(a)).atmos>6 and planets(map(in).plnum(a)).atmos<12 then
                             set__color( 210,bg)
                             ptile=1622
                         endif
-                        if planets(map(in).planets(a)).atmos>11 then
+                        if planets(map(in).plnum(a)).atmos>11 then
                             set__color( 10,bg)
                             ptile=1625
                         endif
-                        if planets(map(in).planets(a)).grav<0.8 then ptile+=1
-                        if planets(map(in).planets(a)).grav>1.2 then ptile-=1
+                        if planets(map(in).plnum(a)).grav<0.8 then ptile+=1
+                        if planets(map(in).plnum(a)).grav>1.2 then ptile-=1
                     endif
-                    if planets(map(in).planets(a)).mapstat=2 then
-                        if planets(map(in).planets(a)).atmos=1 then
+                    if planets(map(in).plnum(a)).mapstat=2 then
+                        if planets(map(in).plnum(a)).atmos=1 then
                             set__color( 8,bg)
                             ptile=1616
                         endif
-                        if planets(map(in).planets(a)).atmos>1 and planets(map(in).planets(a)).atmos<7 then
+                        if planets(map(in).plnum(a)).atmos>1 and planets(map(in).plnum(a)).atmos<7 then
                             set__color(9,bg)
                             ptile=1619
                         endif
-                        if planets(map(in).planets(a)).atmos>6 and planets(map(in).planets(a)).atmos<12 then
+                        if planets(map(in).plnum(a)).atmos>6 and planets(map(in).plnum(a)).atmos<12 then
                             set__color(198,bg)
                             ptile=1622
                         endif
-                        if planets(map(in).planets(a)).atmos>11 then
+                        if planets(map(in).plnum(a)).atmos>11 then
                             set__color( 54,bg)
                             ptile=1625
                         endif
-                        if planets(map(in).planets(a)).grav<0.8 then ptile+=1
-                        if planets(map(in).planets(a)).grav>1.2 then ptile-=1
+                        if planets(map(in).plnum(a)).grav<0.8 then ptile+=1
+                        if planets(map(in).plnum(a)).grav>1.2 then ptile-=1
                     endif
                 endif
             if configflag(con_sysmaptiles)=0 then
@@ -1759,7 +1759,7 @@ function nextplan(p as short,in as short) as short
     do
         p=p+1
         if p>9 then p=1
-    loop until map(in).planets(p)<>0 or p=oldp
+    loop until map(in).plnum(p)<>0 or p=oldp
     return p
 end function
 
@@ -1769,7 +1769,7 @@ function prevplan(p as short,in as short) as short
     do
         p=p-1
         if p<1 then p=9
-    loop until map(in).planets(p)<>0 or p=oldp
+    loop until map(in).plnum(p)<>0 or p=oldp
     return p
 end function
 '
@@ -1819,13 +1819,13 @@ function getplanet(sys as short,forcebar as byte=0) as short
     p=liplanet
     if p<1 then p=1
     if p>9 then p=9
-    if map(sys).planets(p)=0 then p=nextplan(p,sys)
+    if map(sys).plnum(p)=0 then p=nextplan(p,sys)
     for a=1 to 9
-        if map(sys).planets(a)<>0 then b=1
+        if map(sys).plnum(a)<>0 then b=1
     next
     if b>0 then
         dprint "Enter to select, arrows to move,ESC to quit"
-        if show_mapnr=1 then dprint map(sys).planets(p)&":"&is_gasgiant(map(sys).planets(p))
+        if show_mapnr=1 then dprint map(sys).plnum(p)&":"&is_gasgiant(map(sys).plnum(p))
         do
             display_system(sys,,p)
             key=""
@@ -1833,14 +1833,14 @@ function getplanet(sys as short,forcebar as byte=0) as short
             if keyplus(key) or key=key_east or key=key_north then p=nextplan(p,sys)
             if keyminus(key) or key=key_west or key=key_south then p=prevplan(p,sys)
             if key=key_comment then
-                if map(sys).planets(p)>0 then
+                if map(sys).plnum(p)>0 then
                     dprint "Enter comment on planet: "
                     p1=locEOL
-                    planets(map(sys).planets(p)).comment=gettext(p1.x,p1.y,60,planets(map(sys).planets(p)).comment)
+                    planets(map(sys).plnum(p)).comment=gettext(p1.x,p1.y,60,planets(map(sys).plnum(p)).comment)
                 endif
             endif
             if key="q" or key="Q" or key=key__esc then r=-1
-            if (key=key__enter or key=key_sc or key=key_la) and map(sys).planets(p)<>0 then r=p
+            if (key=key__enter or key=key_sc or key=key_la) and map(sys).plnum(p)<>0 then r=p
         loop until r<>0
         liplanet=r
 
@@ -1862,22 +1862,22 @@ end function
 '        return -1
 '    endif
 '    for a=1 to 9
-'        if map(sys).planets(a)<>0 then
+'        if map(sys).plnum(a)<>0 then
 '            lastplanet=a
 '            x=x+1
 '        endif
 '    next
 '    for a=9 to 1 step-1
-'        if map(sys).planets(a)<>0 then firstplanet=a
+'        if map(sys).plnum(a)<>0 then firstplanet=a
 '    next
 '    p=liplanet
 '    if p<1 then p=1
 '    if p>9 then p=9
-'    if map(sys).planets(p)=0 then
+'    if map(sys).plnum(p)=0 then
 '        do
 '            p=p+1
 '            if p>9 then p=1
-'        loop until map(sys).planets(p)<>0 or lastplanet=0
+'        loop until map(sys).plnum(p)<>0 or lastplanet=0
 '    endif
 '    if p>9 then p=firstplanet
 '    if lastplanet>0 then
@@ -1891,73 +1891,73 @@ end function
 '            if xo+18>58 then xo=42
 '        endif
 '        dprint "Enter to select, arrows to move,ESC to quit"
-'        if show_mapnr=1 then dprint map(sys).planets(p)&":"&isgasgiant(map(sys).planets(p))
+'        if show_mapnr=1 then dprint map(sys).plnum(p)&":"&isgasgiant(map(sys).plnum(p))
 '        do
 '            displaysystem(sys)
 '            if keyplus(key) or a=6 then
 '                do
 '                    p=p+1
 '                    if p>9 then p=1
-'                loop until map(sys).planets(p)<>0
+'                loop until map(sys).plnum(p)<>0
 '            endif
 '            if keyminus(key) or a=4 then
 '                do
 '                    p=p-1
 '                    if p<1 then p=9
-'                loop until map(sys).planets(p)<>0
+'                loop until map(sys).plnum(p)<>0
 '            endif
 '            if p<1 then p=lastplanet
 '            if p>9 then p=firstplanet
 '            x=xo+(p*2)
 '            if left(displaytext(25),14)<>"Asteroid field" or left(displaytext(25),15)<>"Planet at orbit" then dprint "System " &map(sys).desig &"."
-'            if map(sys).planets(p)>0 then
-'                if planets(map(sys).planets(p)).comment="" then
-'                    if isasteroidfield(map(sys).planets(p))=1 then
+'            if map(sys).plnum(p)>0 then
+'                if planets(map(sys).plnum(p)).comment="" then
+'                    if isasteroidfield(map(sys).plnum(p))=1 then
 '                        displaytext(25)= "Asteroid field at orbit " &p &"."
 '                    else
-'                        if planets(map(sys).planets(p)).mapstat<>0 then
-'                            if isgasgiant(map(sys).planets(p))<>0 then
+'                        if planets(map(sys).plnum(p)).mapstat<>0 then
+'                            if isgasgiant(map(sys).plnum(p))<>0 then
 '                                if p>1 and p<7 then displaytext(25)= "Planet at orbit " &p &". A helium-hydrogen gas giant."
 '                                if p>6 then displaytext(25)= "Planet at orbit " &p &". A methane-ammonia gas giant."
 '                                if p=1 then displaytext(25)= "Planet at orbit " &p &". A hot jupiter."
 '                            else
-'                                if isgasgiant(map(sys).planets(p))=0 and isasteroidfield(map(sys).planets(p))=0 then displaytext(25)="Planet at orbit " &p &". " &atmdes(planets(map(sys).planets(p)).atmos) &" atm., " &planets(map(sys).planets(p)).grav &"g grav."
+'                                if isgasgiant(map(sys).plnum(p))=0 and isasteroidfield(map(sys).plnum(p))=0 then displaytext(25)="Planet at orbit " &p &". " &atmdes(planets(map(sys).plnum(p)).atmos) &" atm., " &planets(map(sys).plnum(p)).grav &"g grav."
 '                            endif
 '                        else
 '                            displaytext(25)= "Planet at orbit " &p &"."
 '                        endif
 '                    endif
 '                endif
-'                if planets(map(sys).planets(p)).comment<>"" then
-'                    if isasteroidfield(map(sys).planets(p))=1 then
-'                        displaytext(25)= "Asteroid field at orbit " &p &": " &planets(map(sys).planets(p)).comment &"."
+'                if planets(map(sys).plnum(p)).comment<>"" then
+'                    if isasteroidfield(map(sys).plnum(p))=1 then
+'                        displaytext(25)= "Asteroid field at orbit " &p &": " &planets(map(sys).plnum(p)).comment &"."
 '                    else
-'                        displaytext(25)= "Planet at orbit " &p &": " &planets(map(sys).planets(p)).comment &"."
+'                        displaytext(25)= "Planet at orbit " &p &": " &planets(map(sys).plnum(p)).comment &"."
 '                    endif
 '                endif
 '                dprint ""
 '                locate yo,x
 '                set__color( 15,3
-'                if isgasgiant(map(sys).planets(p))=0 and isasteroidfield(map(sys).planets(p))=0 then print "o"
-'                if isgasgiant(map(sys).planets(p))>0 then print "O"
-'                if isasteroidfield(map(sys).planets(p))=1 then print chr(176)
+'                if isgasgiant(map(sys).plnum(p))=0 and isasteroidfield(map(sys).plnum(p))=0 then print "o"
+'                if isgasgiant(map(sys).plnum(p))>0 then print "O"
+'                if isasteroidfield(map(sys).plnum(p))=1 then print chr(176)
 '                set__color( 11,0
 '            endif
 '
-'            if map(sys).planets(p)<0 then
-'                if map(sys).planets(p)<0 then
-'                    if isgasgiant(map(sys).planets(p))=0 then
+'            if map(sys).plnum(p)<0 then
+'                if map(sys).plnum(p)<0 then
+'                    if isgasgiant(map(sys).plnum(p))=0 then
 '                        displaytext(25)= "Asteroid field at orbit " &p &"."
 '                    else
-'                        if map(sys).planets(p)=-20001 then displaytext(25)= "Planet at orbit " &p &". A helium-hydrogen gas giant."
-'                        if map(sys).planets(p)=-20002 then displaytext(25)= "Planet at orbit " &p &". A methane-ammonia gas giant."
-'                        if map(sys).planets(p)=-20003 then displaytext(25)= "Planet at orbit " &p &". A hot jupiter."
+'                        if map(sys).plnum(p)=-20001 then displaytext(25)= "Planet at orbit " &p &". A helium-hydrogen gas giant."
+'                        if map(sys).plnum(p)=-20002 then displaytext(25)= "Planet at orbit " &p &". A methane-ammonia gas giant."
+'                        if map(sys).plnum(p)=-20003 then displaytext(25)= "Planet at orbit " &p &". A hot jupiter."
 '                    endif
 '                    dprint ""
 '                endif
 '                locate yo,x
 '                set__color( 15,3
-'                if isgasgiant(map(sys).planets(p))=0 then
+'                if isgasgiant(map(sys).plnum(p))=0 then
 '                    print chr(176)
 '                else
 '                    print "O"
@@ -1968,13 +1968,13 @@ end function
 '            if key=key_comment then
 '                dprint "Enter comment on planet: "
 '                p1=locEOL
-'                planets(map(sys).planets(p)).comment=gettext(p1.x,p1.y,60,planets(map(sys).planets(p)).comment)
+'                planets(map(sys).plnum(p)).comment=gettext(p1.x,p1.y,60,planets(map(sys).plnum(p)).comment)
 '            endif
 '            a=Getdirection(key)
 '
 '
 '            if key="q" or key="Q" or key=key__esc then r=-1
-'            if (key=key__enter or key=key_sc or key=key_la) and map(sys).planets(p)<>0 then r=p
+'            if (key=key__enter or key=key_sc or key=key_la) and map(sys).plnum(p)<>0 then r=p
 '        loop until r<>0
 '        liplanet=r
 '    else

@@ -732,10 +732,9 @@ function set_globals() as short
     tiles(199).ti_no=2509
     tiles(199).ti_no=2509
     tiles(199).ti_no=2509
-    for a=1 to max_maps
-        planets(a)=planets(0)
-        planets(a).grav=1
-    next
+    dim as _planet pl0=planets(0) 'RVIP: sparse planets(): new default instead of a loop over all slots
+    pl0.grav=1
+    planets_reset(1,pl0)
     for a=0 to 255
         dtextcol(a)=11
     next

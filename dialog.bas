@@ -745,26 +745,26 @@ function has_questguy_want(i as short,byref t as short) as short
     for a=0 to laststar
         if map(a).discovered>0 and questguy(i).systemsknown(a)=0 then
             for b=1 to 9
-                if map(a).planets(b)>0 and map(a).planets(b)<=max_maps then
-                    if planets(map(a).planets(b)).discovered<>0 then
+                if map(a).plnum(b)>0 and map(a).plnum(b)<=max_maps then
+                    if planets(map(a).plnum(b)).discovered<>0 then
                         if questguy(i).want.type=qt_locofpirates then
                             for c=0 to _nopb
-                                if piratebase(c)=map(a).planets(b) then
+                                if piratebase(c)=map(a).plnum(b) then
                                     t=qt_locofpirates
-                                    return map(a).planets(b)
+                                    return map(a).plnum(b)
                                 endif
                             next
                         endif
                         if questguy(i).want.type=qt_locofgarden then
-                            if is_gardenworld(map(a).planets(b))=-1 then
+                            if is_gardenworld(map(a).plnum(b))=-1 then
                                 t=qt_locofgarden
-                                return map(a).planets(b)
+                                return map(a).plnum(b)
                             endif
                         endif
                         if questguy(i).want.type=qt_locofspecial then
-                            if is_special(map(a).planets(b))=-1 then
+                            if is_special(map(a).plnum(b))=-1 then
                                 t=qt_locofspecial
-                                return map(a).planets(b)
+                                return map(a).plnum(b)
                             endif
                         endif
                     endif

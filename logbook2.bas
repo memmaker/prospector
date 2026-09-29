@@ -20,7 +20,7 @@ function logbook() as short
             if map(lobn(a)).comment<>"" then lobc(a)=228
             for p=1 to 9 'find number of planet in system's orbits
     '            
-                m=map(lobn(a)).planets(p)
+                m=map(lobn(a)).plnum(p)
                 if m>0 then
                     if planets(m).comment<>"" then lobc(a)=241
                     for b=0 to lastspecial
@@ -95,7 +95,7 @@ function logbook() as short
                 if map(lobn(curs)).comment<>"" then b=1
                 do 'print max of 2 planets comments
                     p+=1
-                    m=map(lobn(curs)).planets(p)
+                    m=map(lobn(curs)).plnum(p)
                     if m>0 then
                         if planets(m).comment<>"" then
                             if b<2 then dprint "Orbit " &p &":" &planets(m).comment &"." 'print when b=0 or b=1
@@ -120,14 +120,14 @@ function logbook() as short
                 endif
                 if key=key__enter and map(lobn(curs)).discovered>1 then
                 for p=1 to 9
-                    if map(lobn(curs)).planets(p)>0 then
-                        if planets(map(lobn(curs)).planets(p)).comment<>"" then dprint "Orbit " &p &":" &planets(map(lobn(curs)).planets(p)).comment
+                    if map(lobn(curs)).plnum(p)>0 then
+                        if planets(map(lobn(curs)).plnum(p)).comment<>"" then dprint "Orbit " &p &":" &planets(map(lobn(curs)).plnum(p)).comment
                     endif
                 next
                 do
                     p=getplanet(lobn(curs),1)
                     if p>0 then
-                        m=map(lobn(curs)).planets(p)
+                        m=map(lobn(curs)).plnum(p)
                         if m>0 then
                             if planets(m).comment<>"" then dprint planets(m).comment
                             if planetmap(0,0,m)=0 then
@@ -411,7 +411,7 @@ function show_minimap(xx as short,yy as short) as short
                     endif
                         
                     if map(a).spec=9 then 
-                        n=distance(map(a).c,map(map(a).planets(1)).c)/5
+                        n=distance(map(a).c,map(map(a).plnum(1)).c)/5
                         if n<1 then n=1
                         if n>6 then n=6
                         set__color( 179+n,bg)
@@ -488,19 +488,19 @@ function show_wormholemap(j as short=0) as short
     py=11*_fh1+_fh2+2
     
     if j>0 then
-        if debug=1 and _debug=1 then map(j).planets(2)=1
-        if map(j).planets(2)=1 then
+        if debug=1 and _debug=1 then map(j).plnum(2)=1
+        if map(j).plnum(2)=1 then
             set__color( 1,0)
-            line(map(j).c.x*2+px,map(j).c.y*2+py)-(map(map(j).planets(1)).c.x*2+px,map(map(j).planets(1)).c.y*2+py),15
+            line(map(j).c.x*2+px,map(j).c.y*2+py)-(map(map(j).plnum(1)).c.x*2+px,map(map(j).plnum(1)).c.y*2+py),15
         endif
         return 0
     endif
     
     for i=laststar+1 to laststar+wormhole
-        if debug=1 and _debug=1 then map(i).planets(2)=1
-        if map(i).planets(2)=1 then
+        if debug=1 and _debug=1 then map(i).plnum(2)=1
+        if map(i).plnum(2)=1 then
             set__color( 1,0)
-            line(map(i).c.x+px,map(i).c.y+py)-(map(map(i).planets(1)).c.x+px,map(map(i).planets(1)).c.y+py),15
+            line(map(i).c.x+px,map(i).c.y+py)-(map(map(i).plnum(1)).c.x+px,map(map(i).plnum(1)).c.y+py),15
         endif
     next
     return 0
@@ -520,9 +520,9 @@ end function
 '    set__color( 15,0
 '    
 '    for i=laststar+1 to laststar+wormhole
-'        if map(i).planets(2)=1 then
-'            l=line_in_points(map(i).c,map(map(i).planets(1)).c,p())
-'            n=distance(map(i).c,map(map(i).planets(1)).c)/5
+'        if map(i).plnum(2)=1 then
+'            l=line_in_points(map(i).c,map(map(i).plnum(1)).c,p())
+'            n=distance(map(i).c,map(map(i).plnum(1)).c)/5
 '            if n<1 then n=1
 '            if n>6 then n=6
 '            set__color( 179+n,0
@@ -534,7 +534,7 @@ end function
 '    next
 '    for i=laststar+1 to laststar+wormhole
 '        if map(i).discovered<>0 then
-'            n=distance(map(i).c,map(map(i).planets(1)).c)/5
+'            n=distance(map(i).c,map(map(i).plnum(1)).c)/5
 '            if n<1 then n=1
 '            if n>6 then n=6
 '            set__color( 179+n,0
@@ -570,8 +570,8 @@ function lb_listmake(lobk() as string, lobn() as short, lobc() as short,lobp()as
             lobc(i)=0
             lobp(i)=map(a).c
             for b=1 to 9
-                if map(a).planets(b)>0 and map(a).planets(b)<max_maps then
-                if is_special(map(a).planets(b)) and planets(map(a).planets(b)).mapstat<>0 then lobc(i)=6
+                if map(a).plnum(b)>0 and map(a).plnum(b)<max_maps then
+                if is_special(map(a).plnum(b)) and planets(map(a).plnum(b)).mapstat<>0 then lobc(i)=6
                 endif
             next
         endif
@@ -675,8 +675,8 @@ function lb_filter(lobk() as string, lobn() as short, lobc() as short,lobp() as 
         for i=1 to last
             f=0
             for j=1 to 9
-                if map(lobn(i)).planets(j)>0 then
-                    if planets(map(lobn(i)).planets(j)).visited=0 then f=1
+                if map(lobn(i)).plnum(j)>0 then
+                    if planets(map(lobn(i)).plnum(j)).visited=0 then f=1
                 endif
             next
             if f=0 then
@@ -688,7 +688,7 @@ function lb_filter(lobk() as string, lobn() as short, lobc() as short,lobp() as 
         for i=1 to last
             f=0
             for j=1 to 9
-                if is_gasgiant(map(lobn(i)).planets(j))<>0 then f=1
+                if is_gasgiant(map(lobn(i)).plnum(j))<>0 then f=1
             next
             if map(lobn(i)).discovered<2 then f=0
             if f=0 then lobk(i)=""
@@ -698,7 +698,7 @@ function lb_filter(lobk() as string, lobn() as short, lobc() as short,lobp() as 
         for i=1 to last
             f=0
             for j=1 to 9
-                if is_asteroidfield(map(lobn(i)).planets(j))<>0 then f=1
+                if is_asteroidfield(map(lobn(i)).plnum(j))<>0 then f=1
             next
             if map(lobn(i)).discovered<2 then f=0
             if f=0 then lobk(i)=""

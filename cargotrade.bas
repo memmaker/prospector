@@ -506,7 +506,7 @@ function company(st as short) as short
             basis(4).c=map(a).c
             fleet(5).c=map(a).c
             for b=1 to 9
-                if map(a).planets(b)=specialplanet(31) then map(a).planets(b)=-rnd_range(1,8)
+                if map(a).plnum(b)=specialplanet(31) then map(a).plnum(b)=-rnd_range(1,8)
             next
             specialflag(31)=2
         endif
@@ -603,10 +603,10 @@ function company(st as short) as short
         if configflag(con_autosale)=1 then q=askyn("do you want to sell map data? (y/n)")
         for a=0 to laststar
             for b=1 to 9
-                if map(a).planets(b)>0 then
-                    if planets(map(a).planets(b)).flags(21)=1 then
+                if map(a).plnum(b)>0 then
+                    if planets(map(a).plnum(b)).flags(21)=1 then
                         complete+=1
-                        planets(map(a).planets(b)).flags(21)=2
+                        planets(map(a).plnum(b)).flags(21)=2
                     endif
                 endif
             next
@@ -1249,12 +1249,12 @@ function count_gas_giants_area(c as _cords,r as short) as short
     for i=0 to laststar
         if distance(c,map(i).c)<r then
             for j=1 to 9
-                if is_gasgiant(map(i).planets(j)) then cc+=1
-                if map(i).planets(j)=specialplanet(21) then cc+=5
-                if map(i).planets(j)=specialplanet(22) then cc+=5
-                if map(i).planets(j)=specialplanet(23) then cc+=5
-                if map(i).planets(j)=specialplanet(24) then cc+=5
-                if map(i).planets(j)=specialplanet(25) then cc+=5
+                if is_gasgiant(map(i).plnum(j)) then cc+=1
+                if map(i).plnum(j)=specialplanet(21) then cc+=5
+                if map(i).plnum(j)=specialplanet(22) then cc+=5
+                if map(i).plnum(j)=specialplanet(23) then cc+=5
+                if map(i).plnum(j)=specialplanet(24) then cc+=5
+                if map(i).plnum(j)=specialplanet(25) then cc+=5
             next
         endif
     next

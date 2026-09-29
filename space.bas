@@ -28,8 +28,8 @@ function make_spacemap() as short
                 planetmap(x,y,a)=0
             next
         next
-        planets(a)=del
     next
+    planets_reset(0,del) 'RVIP: sparse planets()
     if makelog=1 then print #f,,"Generated sector"
     if _debug>0 then dprint  "Gen sec"
     
@@ -134,14 +134,14 @@ function make_spacemap() as short
         endif
         scount(map(a).spec)+=1
         for b=1 to 9
-            if map(a).planets(b)<-20000 then gascou+=1
-            if map(a).planets(b)>-20000 and map(a).planets(b)<0  then astcou+=1
+            if map(a).plnum(b)<-20000 then gascou+=1
+            if map(a).plnum(b)>-20000 and map(a).plnum(b)<0  then astcou+=1
         next
     next
     if show_specials<>0 then
         for a=0 to laststar
             for b=1 to 9
-                if map(a).planets(b)=show_specials then map(a).discovered=1
+                if map(a).plnum(b)=show_specials then map(a).discovered=1
             next
         next
         if map(a).spec=10 then map(a).discovered=1
@@ -150,7 +150,7 @@ function make_spacemap() as short
         for a=0 to laststar
             for b=1 to 9
                 for c=0 to lastspecial
-                    if map(a).planets(b)=specialplanet(c) then map(a).discovered=1
+                    if map(a).plnum(b)=specialplanet(c) then map(a).discovered=1
                 next            
             next
         next
@@ -158,11 +158,11 @@ function make_spacemap() as short
     if show_dangerous=1 then
         for a=0 to laststar
             for b=1 to 9
-                if map(a).planets(b)=specialplanet(2) then map(a).discovered=1
-                if map(a).planets(b)=specialplanet(3) then map(a).discovered=1
-                if map(a).planets(b)=specialplanet(4) then map(a).discovered=1
-                if map(a).planets(b)=specialplanet(26) then map(a).discovered=1
-                if map(a).planets(b)=specialplanet(27) then map(a).discovered=1
+                if map(a).plnum(b)=specialplanet(2) then map(a).discovered=1
+                if map(a).plnum(b)=specialplanet(3) then map(a).discovered=1
+                if map(a).plnum(b)=specialplanet(4) then map(a).discovered=1
+                if map(a).plnum(b)=specialplanet(26) then map(a).discovered=1
+                if map(a).plnum(b)=specialplanet(27) then map(a).discovered=1
             next
         next
         
@@ -220,7 +220,7 @@ function make_spacemap() as short
             if map(a).discovered>0 then 
                 map(a).discovered=0
                 for b=1 to 9
-                    if map(a).planets(b)>0 then planets(map(a).planets(b)).visited=0
+                    if map(a).plnum(b)>0 then planets(map(a).plnum(b)).visited=0
                 next
 '            else
 '                print "system "&a &" at "& map(a).c.x &":"& map (a).c.y
@@ -310,16 +310,14 @@ function add_stars() as short
     dim as _planet delpl
     
     'debug=2
-    for a=0 to max_maps
-        planets(a)=delpl
-    next
+    planets_reset(0,delpl) 'RVIP: sparse planets()
     
     cc=0
     
     for a=0 to laststar
         map(a)=del
         for b=1 to 9
-            map(a).planets(b)=0
+            map(a).plnum(b)=0
         next
         map(a).c.x=rnd_range(0,sm_x)
         map(a).c.y=rnd_range(0,sm_y)
@@ -330,52 +328,52 @@ function add_stars() as short
         endif
         if rnd_range(1,100)<91 then
             for b=1 to 9
-                map(a).planets(b)=rnd_range(1,24)-((map(a).spec-3)^2+rnd_range(1,12))
-                if map(a).planets(b)>0 then                    
+                map(a).plnum(b)=rnd_range(1,24)-((map(a).spec-3)^2+rnd_range(1,12))
+                if map(a).plnum(b)>0 then                    
                     if rnd_range(1,100)<77 then
                         cc+=1
-                        map(a).planets(b)=cc
+                        map(a).plnum(b)=cc
                     else
                         if rnd_range(1,100)<64 then
-                            map(a).planets(b)=-rnd_range(1,6)
+                            map(a).plnum(b)=-rnd_range(1,6)
                         else
                             if rnd_range(1,100)<45+b*5 then
                                 if b<7 then
-                                    map(a).planets(b)=-20001
+                                    map(a).plnum(b)=-20001
                                 else
-                                    map(a).planets(b)=-20002
+                                    map(a).plnum(b)=-20002
                                 endif
-                                if b=1 then map(a).planets(b)=-20003
+                                if b=1 then map(a).plnum(b)=-20003
                             else
-                                map(a).planets(b)=0
+                                map(a).plnum(b)=0
                             endif
                         endif
                     endif
                 else
-                    map(a).planets(b)=0
+                    map(a).plnum(b)=0
                 endif
             next
         else
             if rnd_range(1,100)<50 then
                 map(a).spec=8
                 cc+=1
-                map(a).planets(1)=cc
+                map(a).plnum(1)=cc
             else
                 if debug=1 and _debug=1 then dprint map(a).c.x &":"&map(a).c.y
                 map(a).spec=10
-                map(a).planets(1)=-20002
+                map(a).plnum(1)=-20002
                 if rnd_range(1,100)<25 then 
                     cc+=1
-                    map(a).planets(2)=cc
+                    map(a).plnum(2)=cc
                 endif
                 if rnd_range(1,100)<15 then 
                     cc+=1
-                    map(a).planets(rnd_range(3,5))=cc
+                    map(a).plnum(rnd_range(3,5))=cc
                 endif
                 
                 if rnd_range(1,100)<5 then 
                     cc+=1
-                    map(a).planets(rnd_range(6,9))=cc
+                    map(a).plnum(rnd_range(6,9))=cc
                 endif
             endif
         endif
@@ -416,9 +414,9 @@ function add_wormholes() as short
         
         map(a).spec=9
         map(a).ti_no=77
-        map(a).planets(1)=a+1
+        map(a).plnum(1)=a+1
         map(a).discovered=maximum(show_all,show_wormholes)
-        map(a+1).planets(1)=a
+        map(a+1).plnum(1)=a
         map(a+1).spec=9
         map(a+1).ti_no=77
         map(a+1).discovered=maximum(show_all,show_wormholes)
@@ -484,15 +482,15 @@ function add_special_planets() as short
         mp=getrandomplanet(sys)
         if mp=-1 and a<>18 then 
             mp=rnd_range(1,9)
-            map(sys).planets(mp)=lastplanet+1
+            map(sys).plnum(mp)=lastplanet+1
             lastplanet=lastplanet+1
             mp=lastplanet
         endif
         map(sys).discovered=2
         if a=18 then
-            map(sys).planets(3)=lastplanet+1
+            map(sys).plnum(3)=lastplanet+1
             specialplanet(18)=lastplanet+1
-            map(sys).planets(9)=lastplanet+2
+            map(sys).plnum(9)=lastplanet+2
             specialplanet(19)=lastplanet+2
             lastplanet=lastplanet+2
             a=19
@@ -554,15 +552,15 @@ function add_easy_planets(start as _cords) as short
     for b=0 to 4
         for a=1 to 9
             map(closest(b)).discovered=6
-            if map(closest(b)).planets(a)>0 then
-                if is_special(map(b).planets(a))=0 then
-                    makeplanetmap(map(closest(b)).planets(a),a,map(closest(b)).spec+5)
+            if map(closest(b)).plnum(a)>0 then
+                if is_special(map(b).plnum(a))=0 then
+                    makeplanetmap(map(closest(b)).plnum(a),a,map(closest(b)).spec+5)
                     for c=0 to 16
-                        if planets(map(closest(b)).planets(a)).mon_template(c).hpmax>3 then planets(map(closest(b)).planets(a)).mon_template(c).hpmax=3 
-                        planets(map(closest(b)).planets(a)).mon_template(c).hp=planets(map(closest(b)).planets(a)).mon_template(c).hpmax
-                        planets(map(closest(b)).planets(a)).mon_template(c).armor=0
-                        planets(map(closest(b)).planets(a)).mon_template(c).weapon=0
-                        planets(map(closest(b)).planets(a)).mon_template(c).range=1.5
+                        if planets(map(closest(b)).plnum(a)).mon_template(c).hpmax>3 then planets(map(closest(b)).plnum(a)).mon_template(c).hpmax=3 
+                        planets(map(closest(b)).plnum(a)).mon_template(c).hp=planets(map(closest(b)).plnum(a)).mon_template(c).hpmax
+                        planets(map(closest(b)).plnum(a)).mon_template(c).armor=0
+                        planets(map(closest(b)).plnum(a)).mon_template(c).weapon=0
+                        planets(map(closest(b)).plnum(a)).mon_template(c).range=1.5
                     next
                 endif
             endif
@@ -835,19 +833,19 @@ function add_caves() as short
                         portal(a).from.s=rnd_range(0,laststar)
                     loop until map(portal(a).from.s).discovered<>2
                 endif
-                if map(portal(a).from.s).planets(b)<=0 then
+                if map(portal(a).from.s).plnum(b)<=0 then
                     'makenewplanet
                     lastplanet=lastplanet+1
-                    map(portal(a).from.s).planets(b)=lastplanet
-                    'print portal(a).from.s &":" & map(portal(a).from.s).planets(b)
+                    map(portal(a).from.s).plnum(b)=lastplanet
+                    'print portal(a).from.s &":" & map(portal(a).from.s).plnum(b)
                 else
-                    portal(a).from.m=map(portal(a).from.s).planets(b)
+                    portal(a).from.m=map(portal(a).from.s).plnum(b)
                 endif
             else
                 portal(a).from.s=sysfrommap(portal(a).from.m)
                 portal(a).dest.s=sysfrommap(portal(a).from.m)
             endif
-            'portal(a).from.m=map(portal(a).from.s).planets(portal(a).from.p)
+            'portal(a).from.m=map(portal(a).from.s).plnum(portal(a).from.p)
             lastplanet+=1
             portal(a).from.x=rnd_range(1,59)
             portal(a).from.y=rnd_range(1,19)
@@ -887,7 +885,7 @@ function add_piratebase() as short
         if spacemap(map(a).c.x,map(a).c.y)=0 and disnbase(map(a).c)>=5 and map(a).spec<=7 then
             cc=0
             for b=1 to 9
-                if is_special(map(a).planets(b)) then cc=1
+                if is_special(map(a).plnum(b)) then cc=1
             next
             if cc=0 then
                 c+=1
@@ -922,7 +920,7 @@ function add_piratebase() as short
         next
         lastplanet+=1
         piratebase(a)=lastplanet
-        map(list(found)).planets(rnd_range(1,9))=lastplanet
+        map(list(found)).plnum(rnd_range(1,9))=lastplanet
         list(found)=list(c)
         dist(found)=dist(c)
         c-=1
@@ -1784,7 +1782,7 @@ function make_clouds() as short
     endif
 
     for a=laststar+1 to laststar+wormhole
-        last=line_in_points(map(a).c,map(map(a).planets(1)).c,p())
+        last=line_in_points(map(a).c,map(map(a).plnum(1)).c,p())
         for i=1 to last
             if a mod 2=0 and last2<=1024 then
                 last2+=1
@@ -1797,7 +1795,7 @@ function make_clouds() as short
             endif
         next
         ano=rnd_range(6,9)
-        r=distance(map(a).c,map(map(a).planets(1)).c)/20
+        r=distance(map(a).c,map(map(a).plnum(1)).c)/20
         if r<1 then r=1
         for x=map(a).c.x-r to map(a).c.x+r
             for y=map(a).c.y-r to map(a).c.y+r
@@ -1808,8 +1806,8 @@ function make_clouds() as short
                 endif
             next
         next
-        if rnd_range(1,100)<distance(map(a).c,map(map(a).planets(1)).c) or rnd_range(1,100)<distance(map(a).c,map(map(a).planets(1)).c) then
-            'add_ano(map(a).c,map(map(a).planets(1)).c,ano)
+        if rnd_range(1,100)<distance(map(a).c,map(map(a).plnum(1)).c) or rnd_range(1,100)<distance(map(a).c,map(map(a).plnum(1)).c) then
+            'add_ano(map(a).c,map(map(a).plnum(1)).c,ano)
         endif
     next
     

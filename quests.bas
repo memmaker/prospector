@@ -1268,7 +1268,7 @@ function getunusedplanet() as short
     dim as short a,b,c,potential
     for a=0 to laststar
         for b=1 to 9
-            potential=map(a).planets(b)
+            potential=map(a).plnum(b)
             if potential>0 then
                 if planetmap(0,0,potential)=0 then
                     for c=0 to lastspecial
@@ -1300,17 +1300,17 @@ function give_quest(st as short) as short
             do
                 m=rnd_range(0,laststar)
                 o=rnd_range(1,9)
-            loop until map(m).planets(o)>0
+            loop until map(m).plnum(o)>0
             if player.questflag(7)=0 then
                 if askyn("The company rep offers you a contract to deliver complete maps of a newly discovered planet in orbit " & o &" around a star at "&map(m).c.x &":" &map(m).c.y &". They will pay 1000 cr. Do you accept?(y/n)") then
-                    m=map(m).planets(o)
+                    m=map(m).plnum(o)
                     player.questflag(7)=m 
                     questroll=999'save m in .... a quest?
                 endif
             else
                 for m=0 to laststar
                     for o=1 to 9
-                        if map(m).planets(o)=player.questflag(7) then 
+                        if map(m).plnum(o)=player.questflag(7) then 
                             m2=m
                             o2=o
                         endif

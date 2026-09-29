@@ -2647,8 +2647,8 @@ function load_game(filename as string) as short
                 planetmap(x,y,a)=0
             next
         next
-        planets(a)=p
     next
+    planets_reset(0,p) 'RVIP: sparse planets()
 
 
     if filename<>"" then

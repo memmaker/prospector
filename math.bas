@@ -136,8 +136,8 @@ function fixstarmap() as short
         
         for a=0 to laststar
             for b=1 to 9
-                if map(a).planets(b)>0 then
-                    p(map(a).planets(b))=0
+                if map(a).plnum(b)>0 then
+                    p(map(a).plnum(b))=0
                 endif
             next
         next
@@ -145,18 +145,18 @@ function fixstarmap() as short
         for a=0 to laststar
             pis=0
             for b=1 to 9
-                if map(a).planets(b)>0 then
+                if map(a).plnum(b)>0 then
                     pis+=1
-                    p(map(a).planets(b))+=1
-                    if p(map(a).planets(b))>1 andalso not rv_nomaps(1) then
+                    p(map(a).plnum(b))+=1
+                    if p(map(a).plnum(b))>1 andalso not rv_nomaps(1) then
                         newfix+=1
                         lastplanet=lastplanet+1
                         fixed=fixed+1
-                        map(a).planets(b)=lastplanet
+                        map(a).plnum(b)=lastplanet
                         p(lastplanet)+=1
                     endif
                     for c=0 to lastspecial
-                        if specialplanet(c)=map(a).planets(b) and specialplanet(c)>0 then sp(c)=sp(c)+1
+                        if specialplanet(c)=map(a).plnum(b) and specialplanet(c)>0 then sp(c)=sp(c)+1
                     next
                 endif
             next
@@ -165,7 +165,7 @@ function fixstarmap() as short
                 newfix+=1
                 lastplanet+=1
                 p(lastplanet)+=1
-                map(a).planets(1)=lastplanet
+                map(a).plnum(1)=lastplanet
             endif
         next
     loop until newfix=0

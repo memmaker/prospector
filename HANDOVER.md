@@ -522,7 +522,7 @@ Next: **stage 6 (docs + sound)**. What stage 6 needs:
   random keys): no ASan errors, only the known UBSan float→int conversions;
   browser: new game with the same maximum sector, flew around, no console
   errors.
-- **Open**: memory still grows to ~402 MB at start (the `ReDim` runs at
+- **Open** (memory: fixed, see "Sparse planets()"): memory still grows to ~402 MB at start (the `ReDim` runs at
   module init); only the reservation moved from the wasm image to the heap.
   Lazy growth would need `planets()` grown at all 65 add sites. The map
   camera follows the ship, not a targeting cursor. `gettext`/`getnumber`
@@ -647,3 +647,41 @@ Next: **stage 9 (graveyard + leaderboard)**.
 - **Open**: long killer texts for non-monster deaths (the game's own
   sentences); graveyard shows them as text.
 
+
+### Sparse planets() (done)
+
+- **Design** (`types.bas`): `planets()` is no longer an array. `planet_slot(max_maps)
+  As _planet Ptr` + `planet_at(i)` allocates a slot on first touch as a copy
+  of `planet_default` (`New _planet(planet_default)`), and
+  `#define planets(i) planet_at(i)[0]` keeps all ~1900 `planets(i)` call sites
+  as they were (the `[0]` form, not `(*planet_at(i))`: a statement like
+  `dprint (*p).comment` parses the parentheses as the argument list).
+  Out-of-range numbers get `planet_scratch` (reset to the default on every
+  use) instead of a stray write; the `rv_nomaps` / `p(max_maps)` guards from
+  `45b1942` are unchanged. FB expands the macro after a dot too, so the
+  `_stars` field `planets(1 To 9)` is now `plnum(1 To 9)` (222 lines,
+  mechanical `.planets(` → `.plnum(`; same layout, saves unchanged).
+- **Loops over all max_maps**: the four that set every slot (module init
+  `darkness=5`; `globals.bas` start-up copy of `planets(0)` with `grav=1`;
+  `space.bas` sector generation, twice; `fileIO.bas` `load_game`) now call
+  `planets_reset(first, template)`: frees slots first..max_maps and makes
+  the template the new default, so an untouched slot reads exactly as
+  before. The `planetmap` loops stay (10 MB static). No other loop runs to
+  `max_maps`; the rest run to `lastplanet` (real planets).
+- **Saves**: same format (`put`/`get` of `planets(a)` for `0..lastplanet`,
+  one `_planet` each). Tested: a save written by the previous build loaded
+  in the new one.
+- **Memory** (web build, `Module.HEAPU8.buffer.byteLength`): before 401.6 MB
+  at the title screen; after 128.0 MB (= `INITIAL_MEMORY`) at the title, in
+  space, on a planet, after save + load and after ~20 turns of autoexplore
+  (339-planet sector: ~21 MB of `_planet` slots). Save peaks at 153.6 MB
+  (compression buffers; the heap does not shrink).
+- **Tested** (own tab, local server, hidden pane, frames POSTed to shotsrv):
+  new game → flew → landed (white giant, no-oxygen planet) → died (summary,
+  high scores, auto-reload); new game → flew → `S y` in space → reload →
+  load: same position/fuel; autosave of game 1 loaded → landed → `S y` on
+  the planet → reload → load: same surface, gravity/temp as before; old
+  build new game + `S y` → new build loaded it → landed with suits →
+  autoexplore. No console errors except local beacon 404s. Test databases
+  `/prospector/*` on 127.0.0.1:8731 deleted (`rvip-outbox` there left alone:
+  it also holds another game's entry).

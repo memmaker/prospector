@@ -118,7 +118,7 @@ function space_mapbmp() as short
                     draw string img,((map(a).c.x-minx)*_fw1,(map(a).c.y-miny)*_fh1),"o",,Font1,custom,@_tcol
                 endif
                 if map(a).spec=9 then 
-                    n=distance(map(a).c,map(map(a).planets(1)).c)/5
+                    n=distance(map(a).c,map(map(a).plnum(1)).c)/5
                     if n<1 then n=1
                     if n>6 then n=6
                     set__color( 179+n,0)
@@ -215,12 +215,12 @@ function explper() as short
         if map(a).discovered>0 then
             exps=exps+1
             for b=1 to 9
-                if map(a).planets(b)>0 then
+                if map(a).plnum(b)>0 then
                     tp+=1
-                    if planets(map(a).planets(b)).mapstat<>0 then expp=expp+1
+                    if planets(map(a).plnum(b)).mapstat<>0 then expp=expp+1
                     for xx=0 to 60
                         for yy=0 to 20
-                            if planetmap(xx,yy,map(a).planets(b))>0 then expl=expl+1
+                            if planetmap(xx,yy,map(a).plnum(b))>0 then expl=expl+1
                             total=total+1
                         next
                     next

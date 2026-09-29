@@ -294,13 +294,13 @@ Function landing(mapslot As Short,lx As Short=0,ly As Short=0,Test As Short=0) A
                     If slot<0 Then slot=rnd_range(0,laststar)
                     map(slot).discovered=1
                     For b=1 To 9
-                        If map(slot).planets(b)>0 Then
-                        If planetmap(0,0,map(slot).planets(b))=0 Then makeplanetmap(map(slot).planets(b),b,map(sys).spec)
+                        If map(slot).plnum(b)>0 Then
+                        If planetmap(0,0,map(slot).plnum(b))=0 Then makeplanetmap(map(slot).plnum(b),b,map(sys).spec)
                         reward(0)=reward(0)+1200
                         reward(7)=reward(7)+600
                         For xx=0 To 60
                             For yy=0 To 20
-                                If planetmap(xx,yy,map(slot).planets(b))<0 Then planetmap(xx,yy,map(slot).planets(b))=planetmap(xx,yy,map(slot).planets(b))*-1
+                                If planetmap(xx,yy,map(slot).plnum(b))<0 Then planetmap(xx,yy,map(slot).plnum(b))=planetmap(xx,yy,map(slot).plnum(b))*-1
                             Next
                         Next
                         EndIf
@@ -399,11 +399,11 @@ Function scanning() As Short
     update_tmap(slot)
     If a>0 Then
         sys=get_system()
-        mapslot=map(sys).planets(a)
+        mapslot=map(sys).plnum(a)
         If mapslot=specialplanet(29) And findbest(89,-1)>0 Then mapslot=specialplanet(30)
         If mapslot=specialplanet(30) And findbest(89,-1)=-1 Then mapslot=specialplanet(29)
         If mapslot=specialplanet(29) Then specialflag(30)=1
-        If mapslot<0 And mapslot>-20000 Then map(sys).planets(a)=asteroid_mining(mapslot)
+        If mapslot<0 And mapslot>-20000 Then map(sys).plnum(a)=asteroid_mining(mapslot)
         If mapslot=-20001 Then dprint "A helium-hydrogen gas giant"
         If mapslot=-20002 Then dprint "A methane-ammonia gas giant"
         If mapslot=-20003 Then dprint "A hot jupiter"
@@ -516,8 +516,8 @@ Function scanning() As Short
 
         EndIf
         EndIf
-        If Key=key_la Then landing(map(sys).planets(slot))
-        If Key=key_tala Then target_landing(map(sys).planets(slot))
+        If Key=key_la Then landing(map(sys).plnum(slot))
+        If Key=key_tala Then target_landing(map(sys).plnum(slot))
     EndIf
     'show_stars(1,0)
     'displayship
@@ -663,7 +663,7 @@ Function gasgiant_fueling(p As Short, orbit As Short, sys As Short) As Short
     If is_gasgiant(p)>1 Then
         If planetmap(0,0,m)<>0 Then make_special_planet(m)
         If askyn("As you dive into the upper atmosphere of the gas giant your sensor pick up a huge metal structure. It is a platform, big enough to land half a fleet on it, connected to struts that extend out into the atmosphere. Do you want to try to land on it? (y/n)") Then
-            landing(map(sys).planets(orbit))
+            landing(map(sys).plnum(orbit))
             Return 0
         Else
             p=-20001
